@@ -1,7 +1,19 @@
 {% extends "base.html" %}
-{% block title %} Home {% endblock title %}
+{% load static %}
+{% block title %} Portal | Home {% endblock title %}
+{% block links %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock links %}
 
 {% block content %}
-    <h1> Welcome to the Home Page </h1>
-    <p> This is the main content of the home page. </p>
+    <div class="container">
+        <h1>Welcome to the Registration Portal</h1>
+        <p>Please select your option:</p>
+
+        <div class="button-group">
+            <a href="{% url 'app:register_new' %}" class="btn">New Registration</a>
+            <a href="{% url 'app:login' %}" class="btn">Previous Year Participant</a>
+
+        </div>
+    </div>
 {% endblock content %}

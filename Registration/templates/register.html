@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Portal | Registration{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10"> 
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <h3 class="card-title text-center mb-5">Student Registration 🧑‍🎓</h3>
+                    
+                    <div class="progress mb-4" style="height: 10px;">
+                        <div id="registrationProgress" class="progress-bar bg-primary" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+
+                    <form id="registrationForm" method="POST">
+                        {% csrf_token %}
+
+                        <div id="step-1">
+                            <h5 class="mb-4 text-primary">Step 1 of 2: Personal Information</h5>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_full_name" class="form-label">Full Name *</label>
+                                    {{ form.full_name }} 
+                                    {{ form.full_name.errors }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_email" class="form-label">Email *</label>
+                                    {{ form.email }}
+                                    {{ form.email.errors }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_phone" class="form-label">Mobile *</label>
+                                    {{ form.phone }}
+                                    {{ form.phone.errors }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_dob" class="form-label">Date of Birth *</label>
+                                    {{ form.dob }}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_gender" class="form-label">Gender *</label>
+                                    {{ form.gender }} 
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_division" class="form-label">Division *</label>
+                                    {{ form.division }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_district" class="form-label">District *</label>
+                                    {{ form.district }} 
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_upazila" class="form-label">Upazila *</label>
+                                    {{ form.upazila }} 
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="button" class="btn btn-primary btn-lg" id="nextStep">Next Step &rarr;</button>
+                            </div>
+                        </div>
+
+                        <div id="step-2" style="display:none;">
+                            <h5 class="mb-4 text-primary">Step 2 of 2: Educational & Account Information</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_school_name" class="form-label">School Name *</label>
+                                    {{ form.school_name }}
+                                    {{ form.school_name.errors }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_student_class" class="form-label">Class *</label>
+                                    {{ form.student_class }}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_password" class="form-label">Password *</label>
+                                    {{ form.password }}
+                                    {{ form.password.errors }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_confirm_password" class="form-label">Confirm Password *</label>
+                                    {{ form.confirm_password }}
+                                    {{ form.confirm_password.errors }}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-secondary" id="prevStep">&larr; Previous</button>
+                                <button type="submit" class="btn btn-success" id="submitBtn">Register Now</button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/address.js' %}"></script>
+{% endblock content %}

@@ -8,6 +8,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import NewUserRegistrationForm, ExistingUserUpdateForm
 from .models import Student, YearRegistration, Result, active_year, generate_next_numeric_username, get_year_model
 
+def home(request):
+    return render(request, "home.html")
+
+
 
 # ---------------- NEW REGISTRATION ----------------
 def register_new(request):

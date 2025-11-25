@@ -1,0 +1,66 @@
+/* Custom CSS for Portal Registration */
+
+/* Body and container for a centered feel */
+body {
+    background-color: #f8f9fa; /* Light grey background for contrast */
+}
+
+.card {
+    border-radius: 15px; /* Rounded corners */
+    border: none; /* Remove default border for a cleaner look */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Soft, prominent shadow */
+}
+
+.card-body {
+    padding: 3rem !important; /* More internal padding for spaciousness */
+}
+
+.card-title {
+    font-weight: 700;
+    color: #0d6efd; /* Primary brand color */
+    letter-spacing: -0.5px;
+}
+
+/* Form Styling */
+.form-label {
+    font-weight: 600; /* Slightly bolder labels */
+    color: #495057; /* Darker text for readability */
+    margin-bottom: 0.5rem;
+}
+
+/* Enhancing inputs for a minimal look */
+.form-control-lg, .form-select-lg {
+    border-radius: 8px; /* Rounded input fields */
+    border-color: #ced4da;
+    transition: all 0.3s ease;
+}
+
+.form-control-lg:focus, .form-select-lg:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Primary color focus ring */
+    border-color: #0d6efd;
+}
+
+/* Button Styling for better feel */
+.btn-lg {
+    border-radius: 10px;
+    padding: 12px 30px; /* Larger padding for a substantial button */
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Progress Bar for Steps */
+.progress {
+    background-color: #e9ecef; /* Light track color */
+}
+
+.progress-bar {
+    border-radius: 5px; /* Match bar to progress container */
+    transition: width 0.4s ease; /* Smooth transition when changing steps */
+}
+
+/* Headings for Steps */
+h5.text-primary {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #0d6efd !important;
+} 
