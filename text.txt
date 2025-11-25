@@ -1,0 +1,10 @@
+the project process will be like this,
+database:
+    - users (django default to login users, username(25000001))
+    - Student (to store all students data)
+    - year (year wise registraion data will be stored, username(25000001), email and school)
+    - results (year, registered online, participated online, selected for regional, selected for      national, participated national, national winner, position(it will be shown if needed or fill, no  error will be occure if not fill by admin/managers))
+
+process
+    there will be 2 button (new reg, prev user), if user select new reg the reg form will be shown and the data will be stored at users table, Student table and year table, if user click prev user login page will come and after login user will get the form with his/her current data, after changing the data while he/she will click the submit button, the previous info will be updated at the required table like users, Student, previous_year, i mean where ever the data is calling based on the username, 
+
