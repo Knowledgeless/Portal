@@ -1,7 +1,7 @@
 # app/urls.py
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from . import views
+from . import views, view_address
 
 app_name = "app"  # change to a nicer name if you want, e.g. "portal"
 
@@ -23,7 +23,9 @@ urlpatterns = [
         auth_views.LogoutView.as_view(next_page="app:login"),
         name="logout",
     ),
-
+    path("api/divisions/", view_address.api_divisions, name="api_divisions"),
+    path("api/districts/", view_address.api_districts, name="api_districts"),
+    path("api/upazilas/", view_address.api_upazilas, name="api_upazilas"),
     # Profile page (placeholder route — implement view later).
     # Several views above redirect to "profile" — implement it as you like.
     # path("profile/", views.profile_view, name="profile"),
