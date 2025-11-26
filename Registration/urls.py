@@ -10,20 +10,13 @@ urlpatterns = [
     # New registration (button: New Reg)
     path("register/", views.register_new, name="register_new"),
 
-    # Previous user flow (login required)
+    # Previous user flow (login required)  
     path("update-registration/", views.prev_user_update_registration, name="prev_user_update_registration"),
 
     # Login / Logout using Django auth views
-    path(
-        "login/",
-        auth_views.LoginView.as_view(template_name="login.html"),
-        name="login",
-    ),
-    path(
-        "logout/",
-        auth_views.LogoutView.as_view(next_page="app:login"),
-        name="logout",
-    ),
+    path("login/",views.login_view,name="login"),
+    path("logout/", views.logout_view, name="logout"),
+    path("profile/", views.profile_view, name="profile"),
     path("api/divisions/", view_address.api_divisions, name="api_divisions"),
     path("api/districts/", view_address.api_districts, name="api_districts"),
     path("api/upazilas/", view_address.api_upazilas, name="api_upazilas"),

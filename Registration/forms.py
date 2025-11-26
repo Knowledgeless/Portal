@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
 from .models import Student
 
 class NewUserRegistrationForm(forms.Form):
@@ -96,6 +97,7 @@ class NewUserRegistrationForm(forms.Form):
         })
     )
 
+
     # ---------- Clean Methods ----------
     def clean(self):
         cleaned = super().clean()
@@ -105,10 +107,7 @@ class NewUserRegistrationForm(forms.Form):
         if password and confirm_password and password != confirm_password:
             self.add_error("confirm_password", "Passwords do not match.")
 
-        email = cleaned.get("email")
-        if email and User.objects.filter(email=email).exists():
-            self.add_error("email", "This email is already registered.")
-
+        
         return cleaned
 
 
@@ -142,7 +141,16 @@ class ExistingUserUpdateForm(forms.ModelForm):
             "dob": forms.DateInput(attrs={"type": "date", "class": "form-control", "required": True}),
         }
     def clean_email(self):
-        email = self.cleaned_data.get("email")
-        if User.objects.filter(email=email).exclude(student__id=self.instance.id).exists():
-            raise forms.ValidationError("This email is already registered.")
-        return email
+        return self.cleaned_data.get("email")
+    
+class LoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({
+            'class': 'form-control w-100',
+            'placeholder': 'Username',
+        })
+        self.fields['password'].widget.attrs.update({
+            'class': 'form-control w-100',
+            'placeholder': 'Password',
+        })
