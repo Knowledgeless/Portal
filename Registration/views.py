@@ -87,7 +87,6 @@ def register_new(request):
             return redirect("register_new")
             print(form.errors)
     else:
-        messages.info(request, "Please fill all required fields")
         form = NewUserRegistrationForm()
     messages.error(request, "Something went wrong. Please try again.")
     return render(request, "register.html", {"form": form})

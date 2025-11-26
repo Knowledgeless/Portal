@@ -20,29 +20,51 @@
 
     <!-- 🔥 TOAST NOTIFICATION BLOCK -->
     <div class="toast-container">
-
         {% if messages %}
             {% for message in messages %}
-                <div class="toast align-items-center text-white 
-                    {% if message.tags == 'error' %} bg-danger 
-                    {% elif message.tags == 'success' %} bg-success 
-                    {% elif message.tags == 'warning' %} bg-warning text-dark
-                    {% else %} bg-primary 
-                    {% endif %}
-                    border-0 mb-2" 
-                    role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+                
+                <div class="toast border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000"
+                    style="background-color: 
+                        {% if message.tags == 'error' %} #ffdbdeff
+                        {% elif message.tags == 'success' %} #c2ffe3ff
+                        {% elif message.tags == 'warning' %} #ffe8adff
+                        {% else %} #c3dbffff
+                        {% endif %}; color: 
+                        {% if message.tags == 'warning' %} #000
+                        {% else %} #000
+                        {% endif %};">
 
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            {{ message }}
+                    <div class="d-flex flex-column">
+                         <div class="d-flex align-items-start justify-content-between p-2">
+
+                            
+                            <div class="toast-body flex-grow-1">
+                                <div class="m-title">
+                                    {{ message.tags|capfirst }}
+                                </div>
+                                {{ message }}
+                            </div>
+                            <button type="button" class="btn-close btn-close-black ms-2" data-bs-dismiss="toast"></button>
                         </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+
+                        <!-- Progress bar -->
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar" role="progressbar"
+                                style="width: 100%; 
+                                    {% if message.tags == 'error' %} background-color: #ec0000ff;
+                                    {% elif message.tags == 'success' %} background-color: #00ff3cff;
+                                    {% elif message.tags == 'warning' %} background-color: #ffbf00ff;
+                                    {% else %} background-color: #0d6efd;
+                                    {% endif %}"
+                                aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
         {% endif %}
-
     </div>
+
     <!-- END TOAST -->
 
 

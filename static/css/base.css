@@ -18,9 +18,26 @@ body {
 }
 
 /* Toast Position */
+
 .toast-container {
     position: fixed;
     top: 20px;
     right: 20px;
     z-index: 2000;
+    max-width: 300px;
 }
+
+.toast{
+    border-radius: 0 !important;
+}
+
+.toast-body {
+    padding: 0 0 0 5px !important;
+    font-weight: 500;
+    font-size: 16px;
+}
+.m-title {
+    font-weight: 700;
+    font-size: 20px;
+}
+
