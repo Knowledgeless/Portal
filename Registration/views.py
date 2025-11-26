@@ -29,9 +29,12 @@ def register_new(request):
                     password=password,
                     email=form.cleaned_data["email"]
                 )
-
+                user.save()
                 # Category selection
                 class_mapping = {
+                    "3": "Primary",
+                    "4": "Primary",
+                    "5": "Primary",
                     "6": "Junior",
                     "7": "Junior",
                     "8": "Junior",
@@ -57,7 +60,7 @@ def register_new(request):
                     category_name=category,
                     dob=form.cleaned_data["dob"]
                 )
-
+                student.save()
                 # Year-wise entry
                 year = active_year()
                 YearModel = get_year_model(year)
@@ -69,7 +72,7 @@ def register_new(request):
                     school_name=student.school_name,
                     student=student,
                 )
-
+                YearModel.save()
                 # Result row
                 Result.objects.create(
                     year=year,
@@ -77,12 +80,16 @@ def register_new(request):
                     registered_online=True
                 )
 
-            messages.success(request, f"Registration Successful! Your username is {username}")
-            return redirect("login")
-
+                messages.success(request, f"Registration Successful! Your username is {username}")
+                return redirect("login")
+                print("User registered successfully.")
+            messages.error(request, "An error occurred during registration. Please try again.")
+            return redirect("register_new")
+            print(form.errors)
     else:
+        messages.info(request, "Please fill all required fields")
         form = NewUserRegistrationForm()
-
+    messages.error(request, "Something went wrong. Please try again.")
     return render(request, "register.html", {"form": form})
 
 

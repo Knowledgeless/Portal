@@ -16,3 +16,11 @@ body {
     color: var(--text-color);
     font-family: var(--font-family);
 }
+
+/* Toast Position */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+}
