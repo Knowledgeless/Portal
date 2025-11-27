@@ -180,24 +180,24 @@ def prev_user_update_registration(request):
 
 
 def login_view(request):
-    form = AuthenticationForm()
-    # If user already logged in → send to dashboard/register page
+    form = LoginForm()
+
     if request.user.is_authenticated:
-        return redirect('app:/profile')  # Or: redirect('app:profile')
+        return redirect('app:profile')
 
     if request.method == "POST":
-        form = AuthenticationForm(request, data=request.POST)
+        form = LoginForm(request, data=request.POST)
 
         if form.is_valid():
             user = form.get_user()
-            login(request, user)  # SAFE: using Django's login()
+            login(request, user)
             messages.success(request, "Logged in successfully.")
-            return redirect('app:/home')  # Or: redirect('app:home')
+            return redirect('app:home')
         else:
             messages.error(request, "Invalid username or password.")
     else:
-        form = AuthenticationForm()
-    
+        form = LoginForm()
+
     return render(request, "login.html", {"form": form})
 
 
@@ -208,4 +208,4 @@ def logout_view(request):
 
 @login_required
 def profile_view(request):
-    return render(request, "profile.html", {})
+    return render(request, "profile.html")

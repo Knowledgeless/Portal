@@ -144,8 +144,8 @@ class ExistingUserUpdateForm(forms.ModelForm):
         return self.cleaned_data.get("email")
     
 class LoginForm(AuthenticationForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, request=None, *args, **kwargs):
+        super().__init__(request, *args, **kwargs)
         self.fields['username'].widget.attrs.update({
             'class': 'form-control w-100',
             'placeholder': 'Username',
