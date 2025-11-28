@@ -181,30 +181,29 @@ def prev_user_update_registration(request):
 
 
 def login_view(request):
-    form = LoginForm(request)
     if request.user.is_authenticated:
         messages.info(request, "You are already logged in.")
         return redirect('app:profile')
-    
-    else:
-        form = LoginForm(request)
-        if request.method == "POST":
-            form = LoginForm(request, data=request.POST)
-            if form.is_valid():
-                user = form.get_user()
-                login(request, user)
 
-                next_url = request.GET.get("next")
-                if next_url:
-                    return redirect(next_url)
-                messages.success(request, "Successfully Logged In!")
-                return redirect("/profile/?show_update=1")
-            messages.error(request, "Invalid username or password.")
+    form = LoginForm(request, data=request.POST or None)
 
-        else:
-            form = LoginForm(request)
+    if request.method == "POST" and form.is_valid():
+        user = form.get_user()
+        login(request, user)
 
-        return render(request, "login.html", {"form": form})
+        year = active_year()
+        YearModel = get_year_model(year)
+        already_registered = YearModel.objects.filter(student__user=user).exists()
+
+        if already_registered:
+            messages.success(request, "Login successful!")
+            return redirect("app:profile")
+
+        messages.info(request, f"Please update your information to register for {year + 1}.")
+        return redirect("/profile/?show_update=1")
+
+    return render(request, "login.html", {"form": form})
+
 
 
 def logout_view(request):
@@ -224,7 +223,7 @@ def profile_view(request):
     if not request.user.is_authenticated:
         messages.info(request, "Login First")
         return redirect("app:login")
-
+        
     show_update = request.GET.get("show_update")
     form = None
 
