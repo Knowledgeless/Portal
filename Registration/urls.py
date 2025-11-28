@@ -10,9 +10,9 @@ urlpatterns = [
     path("home", views.home, name="home"),
     # New registration (button: New Reg)
     path("register/", views.register_new, name="register_new"),
-
+    path("update-existing-user/", views.prev_user_update_registration, name="prev_user_update_registration"),
     # Previous user flow (login required)  
-    path("update-registration/", views.prev_user_update_registration, name="prev_user_update_registration"),
+    # path("update-registration/", views.prev_user_update_registration, name="prev_user_update_registration"),
 
     # Login / Logout using Django auth views
     path("login/",views.login_view,name="login"),

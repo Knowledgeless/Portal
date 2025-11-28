@@ -2,8 +2,64 @@
 {% load static %}
 
 {% block title %}Portal | Profile{% endblock %}
+{% block links %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock links %}
 
 {% block content %}
-<h1>Welcome to your profile</h1>
-<a href="{% url 'app:logout' %}" class="btn btn-danger">Logout</a>
+
+<div class="container my-5">
+    <h2 class="mb-4">Welcome to your Profile</h2>
+
+    <a href="{% url 'app:logout' %}" class="btn btn-danger mb-4">Logout</a>
+
+    <p>Your profile details will go here...</p>
+</div>
+
+
+{% if show_update %}
+<div class="modal fade show" id="updateModal"
+     tabindex="-1"
+     style="display:block; background:rgba(0,0,0,0.5);"
+     aria-modal="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow rounded-3">
+
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Register For {{ year }} </h5>
+                <a href="{% url 'app:profile' %}" class="btn-close"></a>
+            </div>
+
+            <div class="modal-body">
+                <form method="POST" action="{% url 'app:prev_user_update_registration' %}">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label  fw-bold" for="{{ field.id_for_label }}">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-danger w-100 mt-3">
+                        Submit {{ year }}
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.body.classList.add("modal-open");
+</script>
+{% endif %}
+
 {% endblock %}

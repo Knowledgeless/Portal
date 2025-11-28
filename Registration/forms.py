@@ -154,3 +154,5 @@ class LoginForm(AuthenticationForm):
             'class': 'form-control w-100',
             'placeholder': 'Password',
         })
+
+

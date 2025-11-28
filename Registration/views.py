@@ -19,7 +19,7 @@ def home(request):
 # ---------------- NEW REGISTRATION ----------------
 def register_new(request):
     if request.user.is_authenticated:
-        messages.info(request, "You are already logged in.")
+        messages.info(request, "Logout First to Register a New Account.")
         return redirect("app:profile")
     else:
         if request.method == "POST":
@@ -49,7 +49,6 @@ def register_new(request):
                 district = form.cleaned_data.get("district")
                 upazila = form.cleaned_data.get("upazila")
 
-                print("Division:", division, "District:", district, "Upazila:", upazila)
 
                 try:
                     with transaction.atomic():
@@ -118,12 +117,10 @@ def register_new(request):
                         return redirect("/login")
 
                 except Exception as e:
-                    print("Error during registration:", str(e))
                     messages.error(request, f"Registration failed: {str(e)}")
                     return redirect("app:register_new")
 
             else:
-                print("Form errors:", form.errors)
                 messages.error(request, "Form validation failed. Please check your inputs.")
 
         else:
@@ -184,35 +181,62 @@ def prev_user_update_registration(request):
 
 
 def login_view(request):
+    form = LoginForm(request)
     if request.user.is_authenticated:
-        messages.warning(request, "You are already logged in.")
+        messages.info(request, "You are already logged in.")
         return redirect('app:profile')
-
-    if request.method == "POST":
-        form = LoginForm(request, data=request.POST)
-        print(form)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            messages.success(request, "Logged in successfully.")
-            return redirect("app:profile")
-
-        messages.error(request, "Invalid username or password.")
+    
     else:
         form = LoginForm(request)
+        if request.method == "POST":
+            form = LoginForm(request, data=request.POST)
+            if form.is_valid():
+                user = form.get_user()
+                login(request, user)
 
-    return render(request, "login.html", {"form": form})
+                next_url = request.GET.get("next")
+                if next_url:
+                    return redirect(next_url)
+                messages.success(request, "Successfully Logged In!")
+                return redirect("/profile/?show_update=1")
+            messages.error(request, "Invalid username or password.")
 
-@login_required
+        else:
+            form = LoginForm(request)
+
+        return render(request, "login.html", {"form": form})
+
+
 def logout_view(request):
     if request.user.is_authenticated:
         logout(request)  # SAFE: using Django's logout()
-        messages.warning(request, "Logged out successfully.")
+        messages.warning(request, "You have been logged out.")
         return redirect("app:login")
-    else:
-        messages.info("Login First")
+    
+    messages.info(request, "Login First")
+    return redirect("app:login")
+
+
+def profile_view(request):
+
+    year = active_year() + 1
+
+    if not request.user.is_authenticated:
+        messages.info(request, "Login First")
         return redirect("app:login")
 
-@login_required
-def profile_view(request):
-    return render(request, "profile.html")
+    show_update = request.GET.get("show_update")
+    form = None
+
+    if show_update:
+        student = get_object_or_404(Student, user=request.user)
+        form = ExistingUserUpdateForm(
+            instance=student,
+            initial={"email": request.user.email}
+        )
+
+    return render(
+        request,
+        "profile.html",
+        {"form": form, "show_update": show_update, "year": year}
+    )
