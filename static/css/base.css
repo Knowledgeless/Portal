@@ -33,11 +33,11 @@ body {
 
 .toast-body {
     padding: 0 0 0 5px !important;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 16px;
 }
 .m-title {
-    font-weight: 700;
-    font-size: 20px;
+    font-weight: 600;
+    font-size: 18px;
 }
 

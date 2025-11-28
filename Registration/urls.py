@@ -7,6 +7,7 @@ app_name = "app"  # change to a nicer name if you want, e.g. "portal"
 
 urlpatterns = [
     path("", views.home, name="home"),
+    path("home", views.home, name="home"),
     # New registration (button: New Reg)
     path("register/", views.register_new, name="register_new"),
 

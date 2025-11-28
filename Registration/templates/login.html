@@ -26,8 +26,11 @@
                             {{ form.password }}
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
+                    <div class="regiser mt-4 text-center">
+                        Already have an account? <a href="{% url "app:register_new" %}">Register</a>
+                    </div>
                 </div>
 
                 <!-- Right: Image -->

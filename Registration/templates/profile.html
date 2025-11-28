@@ -5,8 +5,5 @@
 
 {% block content %}
 <h1>Welcome to your profile</h1>
-<form method="post" action="{% url 'app:logout' %}">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Logout</button>
-</form>
+<a href="{% url 'app:logout' %}" class="btn btn-danger">Logout</a>
 {% endblock %}

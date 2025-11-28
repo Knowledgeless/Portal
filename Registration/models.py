@@ -38,7 +38,7 @@ class Student(models.Model):
 
 
 # ---------------- Year-wise Registration ----------------
-class YearRegistration(models.Model):
+class Year2025(models.Model):
     year = models.PositiveIntegerField(db_index=True, default=timezone.now().year)
     username = models.CharField(max_length=50, db_index=True, default="00000000")
     email = models.EmailField(default="not_provided@example.com")
@@ -91,17 +91,51 @@ class Result(models.Model):
 
 # ---------------- Helpers ----------------
 def get_year_model(year: int):
-    model_name = f"Year{year}"
+    app_label = __name__.split(".")[0]
+    model_name = f"Year{year}"  # Valid Python class name
+
+    # If model already exists in memory → return it
     try:
-        app_label = __name__.split(".")[0]
         return apps.get_model(app_label, model_name)
-    except Exception:
-        return YearRegistration
+    except LookupError:
+        pass
+
+    # Define fields
+    attrs = {
+        "__module__": __name__,
+        "username": models.CharField(max_length=50, db_index=True, default=f"{timezone.now().year}+000000"),
+        "email": models.EmailField(default="not_provided@example.com"),
+        "school_name": models.CharField(max_length=200, default="Not Provided"),
+        "student": models.ForeignKey(
+            Student,
+            on_delete=models.SET_NULL,
+            null=True,
+            default=None,
+        ),
+        "created_at": models.DateTimeField(auto_now_add=True),
+
+        # Table name = the year only (e.g., "2026")
+        "Meta": type(
+            "Meta",
+            (),
+            {
+                "db_table": str(year),
+                "ordering": ["username"],
+                "unique_together": (("username",),),
+            },
+        ),
+    }
+
+    # Create model dynamically
+    NewModel = type(model_name, (models.Model,), attrs)
+
+    return NewModel
+
 
 
 def generate_next_numeric_username():
     year_suffix = str(timezone.now().year)[-2:]
-    prefix = f"{year_suffix}00000"
+    prefix = f"{year_suffix}000000"
 
     last_user = User.objects.filter(username__startswith=prefix).order_by("-username").first()
 

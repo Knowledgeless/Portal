@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Student, YearRegistration, Result
+from .models import Student, Year2025, Result
 
 
 @admin.register(Student)
@@ -9,8 +9,8 @@ class StudentAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
 
 
-@admin.register(YearRegistration)
-class YearRegistrationAdmin(admin.ModelAdmin):
+@admin.register(Year2025)
+class Year2025Admin(admin.ModelAdmin):
     list_display = ("username", "year", "email", "school_name")
     list_filter = ("year",)
     search_fields = ("username", "email")
