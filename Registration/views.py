@@ -196,7 +196,7 @@ def login_view(request):
         already_registered = YearModel.objects.filter(student__user=user).exists()
 
         if already_registered:
-            messages.success(request, "Login successful!")
+            messages.success(request, f"You are already registered for {year}!")
             return redirect("app:profile")
 
         messages.info(request, f"Please update your information to register for {year + 1}.")
@@ -205,12 +205,11 @@ def login_view(request):
     return render(request, "login.html", {"form": form})
 
 
-
 def logout_view(request):
     if request.user.is_authenticated:
         logout(request)  # SAFE: using Django's logout()
         messages.warning(request, "You have been logged out.")
-        return redirect("app:login")
+        return redirect("app:home")
     
     messages.info(request, "Login First")
     return redirect("app:login")
