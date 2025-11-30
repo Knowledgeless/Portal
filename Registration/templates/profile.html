@@ -27,29 +27,95 @@
         <div class="modal-content shadow rounded-3">
 
             <div class="modal-header">
-                <h5 class="modal-title fw-bold">Register For {{ year }} </h5>
+                <h5 class="modal-title fw-bold">Update Information for {{ year }}</h5>
                 <a href="{% url 'app:profile' %}" class="btn-close"></a>
             </div>
 
             <div class="modal-body">
-                <form method="POST" action="{% url 'app:prev_user_update_registration' %}">
+                
+                <div class="progress mb-3" style="height: 10px;">
+                    <div id="registrationProgress" class="progress-bar bg-primary" style="width: 50%;"></div>
+                </div>
+
+                <form id="registrationForm" method="POST">
                     {% csrf_token %}
 
-                    {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label  fw-bold" for="{{ field.id_for_label }}">
-                                {{ field.label }}
-                            </label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <div class="text-danger small">{{ field.errors }}</div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+                    <!-- STEP 1 -->
+                    <div id="step-1">
+                        <h5 class="mb-4 text-primary">Step 1 of 2: Personal Information</h5>
 
-                    <button type="submit" class="btn btn-danger w-100 mt-3">
-                        Submit {{ year }}
-                    </button>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Full Name *</label>
+                                {{ form.full_name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email *</label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Mobile *</label>
+                                {{ form.phone }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date of Birth *</label>
+                                {{ form.dob }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Gender *</label>
+                                {{ form.gender }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Division *</label>
+                                {{ form.division }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">District *</label>
+                                {{ form.district }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Upazila *</label>
+                                {{ form.upazila }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="button" class="btn btn-primary" id="nextStep">
+                                Next Step →
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2 -->
+                    <div id="step-2" style="display:none;">
+                        <h5 class="mb-4 text-primary">Step 2 of 2: Educational Information</h5>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">School Name *</label>
+                                {{ form.school_name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Class *</label>
+                                {{ form.student_class }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="button" class="btn btn-outline-secondary" id="prevStep">← Previous</button>
+                            <button type="submit" class="btn btn-success">Update Now</button>
+                        </div>
+
+                    </div>
                 </form>
             </div>
 
@@ -57,9 +123,11 @@
     </div>
 </div>
 
-<script>
-document.body.classList.add("modal-open");
-</script>
+
+
+<script src="{% static 'js/address.js' %}"></script>
+<script src="{% static 'js/prev_user.js' %}"></script>
 {% endif %}
+
 
 {% endblock %}

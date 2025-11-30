@@ -112,36 +112,35 @@ class NewUserRegistrationForm(forms.Form):
 
 
 class ExistingUserUpdateForm(forms.ModelForm):
-    email = forms.EmailField(
-        widget=forms.EmailInput(attrs={"class": "form-control", "required": True})
-    )
-
     class Meta:
         model = Student
         fields = [
-            "full_name",
-            "school_name",
-            "phone",
-            "division",
-            "district",
-            "upazila",
-            "gender",
-            "student_class",
-            "dob",
+            "full_name", "email", "phone", "dob",
+            "gender", "division", "district", "upazila",
+            "school_name", "student_class"
         ]
         widgets = {
-            "full_name": forms.TextInput(attrs={"class": "form-control", "required": True}),
-            "school_name": forms.TextInput(attrs={"class": "form-control", "required": True}),
-            "phone": forms.TextInput(attrs={"class": "form-control", "required": True}),
-            "division": forms.Select(attrs={"class": "form-select", "required": True}),
-            "district": forms.Select(attrs={"class": "form-select", "required": True}),
-            "upazila": forms.Select(attrs={"class": "form-select", "required": True}),
-            "gender": forms.Select(attrs={"class": "form-select", "required": True}),
-            "student_class": forms.Select(attrs={"class": "form-select", "required": True}),
-            "dob": forms.DateInput(attrs={"type": "date", "class": "form-control", "required": True}),
+            "dob": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "division": forms.Select(attrs={"class": "form-select"}),
+            "district": forms.Select(attrs={"class": "form-select"}),
+            "upazila": forms.Select(attrs={"class": "form-select"}),
+            "gender": forms.Select(attrs={"class": "form-select", "disabled": True}),
+            "student_class": forms.Select(attrs={"class": "form-select"}),
         }
-    def clean_email(self):
-        return self.cleaned_data.get("email")
+
+    email = forms.EmailField(widget=forms.EmailInput(attrs={"class": "form-control"}))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # lock gender
+        self.fields["gender"].disabled = True
+
+        # beautify remaining fields
+        for name, field in self.fields.items():
+            if not isinstance(field.widget, forms.Select):
+                field.widget.attrs.setdefault("class", "form-control")
+
     
 class LoginForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
