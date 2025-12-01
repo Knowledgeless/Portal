@@ -2,3 +2,17 @@
     font-weight: 400 !important;
     color: black;
 }
+#profileCard {
+    border-radius: 15px;
+    padding: 30px;
+    background: #ffffff;
+}
+
+#profileCard h4 {
+    margin-bottom: 20px;
+    color: #0d6efd;
+}
+
+#profileCard .row div {
+    margin-bottom: 10px;
+}

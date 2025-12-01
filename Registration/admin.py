@@ -1,12 +1,34 @@
 from django.contrib import admin
 from .models import Student, Year2025, Result
 
-
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "user", "school_name", "division", "district", "upazila")
-    search_fields = ("full_name", "user__username", "school_name")
+    # Define list_display with correct fields or admin methods
+    list_display = (
+        "full_name",
+        "user",
+        "get_category",  # method returning category_name
+        "student_class",
+        "category_name",
+        "get_email",     # method returning user's email
+        "phone",
+        "division",
+        "district",
+        "upazila"
+    )
+
+    search_fields = ("full_name", "user__username", "school_name", "user__email", "phone")
     readonly_fields = ("created_at", "updated_at")
+
+    # Method to display category_name as "category"
+    def get_category(self, obj):
+        return obj.category_name
+    get_category.short_description = "Category"
+
+    # Method to display related user's email
+    def get_email(self, obj):
+        return obj.user.email
+    get_email.short_description = "Email"
 
 
 @admin.register(Year2025)

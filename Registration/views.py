@@ -67,16 +67,10 @@ def register_new(request):
 
                         # Category mapping
                         class_mapping = {
-                            "3": "Primary",
-                            "4": "Primary",
-                            "5": "Primary",
-                            "6": "Junior",
-                            "7": "Junior",
-                            "8": "Junior",
-                            "9": "Secondary",
-                            "10": "Secondary",
-                            "11": "Higher Secondary",
-                            "12": "Higher Secondary",
+                            "3": "Primary", "4": "Primary", "5": "Primary",
+                            "6": "Junior", "7": "Junior", "8": "Junior", ""
+                            "9": "Secondary", "10": "Secondary",
+                            "11": "Higher Secondary", "12": "Higher Secondary",
                         }
                         category = class_mapping.get(form.cleaned_data["student_class"], "Unknown")
 
@@ -139,18 +133,33 @@ def prev_user_update_registration(request):
 
     if request.method == "POST":
         form = ExistingUserUpdateForm(request.POST, instance=student)
+
         if form.is_valid():
             with transaction.atomic():
 
-                student = form.save()
+                # ---- 1. UPDATE USER TABLE ----
                 request.user.email = form.cleaned_data["email"]
                 request.user.save()
 
+                # ---- 2. UPDATE CATEGORY BASED ON CLASS ----
+                class_mapping = {
+                    "3": "Primary", "4": "Primary", "5": "Primary",
+                    "6": "Junior", "7": "Junior", "8": "Junior",
+                    "9": "Secondary", "10": "Secondary",
+                    "11": "Higher Secondary", "12": "Higher Secondary",
+                }
+                category = class_mapping.get(form.cleaned_data["student_class"], "Unknown")
+
+                # ---- 3. UPDATE STUDENT TABLE ----
+                student = form.save(commit=False)
+                student.category_name = category
+                student.save()
+
+                # ---- 4. REGISTER / UPDATE YEAR-WISE TABLE ----
                 year = active_year()
                 YearModel = get_year_model(year)
 
                 reg_obj, created = YearModel.objects.get_or_create(
-                    year=year,
                     username=request.user.username,
                     defaults={
                         "email": request.user.email,
@@ -165,19 +174,22 @@ def prev_user_update_registration(request):
                     reg_obj.student = student
                     reg_obj.save()
 
-                Result.objects.get_or_create(
+                # ---- 5. RESULT TABLE ENTRY ----
+                Result.objects.update_or_create(
                     year=year,
                     student=student,
                     defaults={"registered_online": True}
                 )
 
-            messages.success(request, "Your profile has been updated for this year.")
+            messages.success(request, "Your registration has been updated successfully.")
             return redirect("profile")
 
     else:
-        form = ExistingUserUpdateForm(instance=student, initial={"email": request.user.email})
+        form = ExistingUserUpdateForm(instance=student)
+        form.fields["email"].initial = request.user.email
 
     return render(request, "update_registration.html", {"form": form})
+
 
 
 def login_view(request):
@@ -216,9 +228,8 @@ def logout_view(request):
 
 
 def profile_view(request):
-
     year = active_year() + 1
-
+    student = get_object_or_404(Student, user=request.user)
     if not request.user.is_authenticated:
         messages.info(request, "Login First")
         return redirect("app:login")
@@ -228,13 +239,11 @@ def profile_view(request):
 
     if show_update:
         student = get_object_or_404(Student, user=request.user)
-        form = ExistingUserUpdateForm(
-            instance=student,
-            initial={"email": request.user.email}
-        )
-
+        form = ExistingUserUpdateForm(instance=student)
+        form.fields["email"].initial = request.user.email  
+    profile = None
     return render(
         request,
         "profile.html",
-        {"form": form, "show_update": show_update, "year": year}
+        {"form": form, "show_update": show_update, "year": year, "profile_info": profile}
     )

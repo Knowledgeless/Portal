@@ -13,8 +13,18 @@
 
     <a href="{% url 'app:logout' %}" class="btn btn-danger mb-4">Logout</a>
     <br>{{ user.username }}
-    <p>Your profile details will go here...</p>
-</div>
+    <div class="profile-details">
+        <p>Full Name: {{ profile_info.full_name }}</p>
+        <p>Email: {{ user.email }}</p>
+        <p>Phone: {{ profile_info.phone }}</p>
+        <p>Date of Birth: {{ profile_info.dob }}</p>
+        <p>School Name: {{ profile_info.school_name }}</p>
+        <p>Class: {{ profile_info.student_class }}</p>
+        <p>Division: {{ profile_info.division }}</p>
+        <p>District: {{ profile_info.district }}</p>
+        <p>Upazila: {{ profile_info.upazila }}</p>
+        <p>Gender: {{ profile_info.gender }}</p>
+    </div>
 
 
 {% if show_update %}
@@ -34,7 +44,7 @@
             <div class="modal-body">
                 
                 <div class="progress mb-3" style="height: 10px;">
-                    <div id="registrationProgress" class="progress-bar bg-primary" style="width: 50%;"></div>
+                    <div id="registrationProgress" class="progress-bar bg-primary col-12" style="width: 50%;"></div>
                 </div>
 
                 <form id="registrationForm" method="POST">
@@ -66,27 +76,9 @@
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Gender *</label>
-                                {{ form.gender }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Division *</label>
-                                {{ form.division }}
-                            </div>
-                        </div>
+                        
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">District *</label>
-                                {{ form.district }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Upazila *</label>
-                                {{ form.upazila }}
-                            </div>
-                        </div>
+                        
 
                         <div class="d-flex justify-content-end mt-4">
                             <button type="button" class="btn btn-primary" id="nextStep">
@@ -101,12 +93,28 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">School Name *</label>
+                                <label class="form-label">Institute Name *</label>
                                 {{ form.school_name }}
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Class *</label>
                                 {{ form.student_class }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 col 12 col-lg-12 mb-3">
+                                <label class="form-label">Division *</label>
+                                {{ form.division }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">District *</label>
+                                {{ form.district }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Upazila *</label>
+                                {{ form.upazila }}
                             </div>
                         </div>
 

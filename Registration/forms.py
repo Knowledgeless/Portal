@@ -112,34 +112,65 @@ class NewUserRegistrationForm(forms.Form):
 
 
 class ExistingUserUpdateForm(forms.ModelForm):
+
+    CLASS_CHOICES = [(str(i), f"Class {i}") for i in range(3, 13)]
+
+    student_class = forms.ChoiceField(
+        choices=[("", "--- Select Class ---")] + CLASS_CHOICES,
+        widget=forms.Select(attrs={"class": "form-select"}),
+        required=True
+    )
+
+    # Email handled separately (NOT a Student model field)
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={"class": "form-control"})
+    )
+
     class Meta:
         model = Student
         fields = [
-            "full_name", "email", "phone", "dob",
-            "gender", "division", "district", "upazila",
-            "school_name", "student_class"
+            "full_name", 
+            "school_name",
+            "phone",
+            "dob",
+            "gender",
+            "division", 
+            "district", 
+            "upazila",
+            "student_class",
         ]
+
         widgets = {
             "dob": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "full_name": forms.TextInput(attrs={"class": "form-control"}),
+            "school_name": forms.TextInput(attrs={"class": "form-control"}),
+            "phone": forms.TextInput(attrs={"class": "form-control"}),
+
             "division": forms.Select(attrs={"class": "form-select"}),
             "district": forms.Select(attrs={"class": "form-select"}),
             "upazila": forms.Select(attrs={"class": "form-select"}),
-            "gender": forms.Select(attrs={"class": "form-select", "disabled": True}),
-            "student_class": forms.Select(attrs={"class": "form-select"}),
-        }
 
-    email = forms.EmailField(widget=forms.EmailInput(attrs={"class": "form-control"}))
+            "gender": forms.Select(attrs={"class": "form-select", "disabled": True}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # lock gender
+        # Apply dropdown choices again so Django won't remove them
+        self.fields["student_class"].choices = [
+            ("", "--- Select Class ---")
+        ] + self.CLASS_CHOICES
+
+        # Pre-fill email from User model
+        if self.instance:
+            self.fields["email"].initial = self.instance.user.email
+
+        # Lock gender field
         self.fields["gender"].disabled = True
 
-        # beautify remaining fields
-        for name, field in self.fields.items():
-            if not isinstance(field.widget, forms.Select):
-                field.widget.attrs.setdefault("class", "form-control")
+
+
 
     
 class LoginForm(AuthenticationForm):

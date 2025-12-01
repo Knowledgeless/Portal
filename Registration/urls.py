@@ -18,6 +18,8 @@ urlpatterns = [
     path("login/",views.login_view,name="login"),
     path("logout/", views.logout_view, name="logout"),
     path("profile/", views.profile_view, name="profile"),
+    # path("profile/update-ajax/", views.update_profile_ajax, name="update_profile_ajax"),
+
     path("api/divisions/", view_address.api_divisions, name="api_divisions"),
     path("api/districts/", view_address.api_districts, name="api_districts"),
     path("api/upazilas/", view_address.api_upazilas, name="api_upazilas"),
