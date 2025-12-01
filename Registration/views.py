@@ -208,7 +208,7 @@ def login_view(request):
         already_registered = YearModel.objects.filter(student__user=user).exists()
 
         if already_registered:
-            messages.success(request, f"You are already registered for {year}!")
+            messages.success(request, f"You are already registered for {year+1}!")
             return redirect("app:profile")
 
         messages.info(request, f"Please update your information to register for {year + 1}.")
@@ -241,7 +241,7 @@ def profile_view(request):
         student = get_object_or_404(Student, user=request.user)
         form = ExistingUserUpdateForm(instance=student)
         form.fields["email"].initial = request.user.email  
-    profile = None
+    profile = Student.objects.select_related('user').get(user=request.user)
     return render(
         request,
         "profile.html",
