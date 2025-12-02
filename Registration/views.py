@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
+from django.views.decorators.cache import never_cache
 
 from Registration.view_address import DIVISION_LIST, GEOGRAPHY_DATA
 
@@ -68,7 +69,7 @@ def register_new(request):
                         # Category mapping
                         class_mapping = {
                             "3": "Primary", "4": "Primary", "5": "Primary",
-                            "6": "Junior", "7": "Junior", "8": "Junior", ""
+                            "6": "Junior", "7": "Junior", "8": "Junior",
                             "9": "Secondary", "10": "Secondary",
                             "11": "Higher Secondary", "12": "Higher Secondary",
                         }
@@ -216,7 +217,7 @@ def login_view(request):
 
     return render(request, "login.html", {"form": form})
 
-
+@never_cache
 def logout_view(request):
     if request.user.is_authenticated:
         logout(request)  # SAFE: using Django's logout()
@@ -225,25 +226,82 @@ def logout_view(request):
     
     messages.info(request, "Login First")
     return redirect("app:login")
-
-
+    return redirect("app:login")
+@never_cache
 def profile_view(request):
-    year = active_year() + 1
-    student = get_object_or_404(Student, user=request.user)
+    # Ensure user is authenticated before accessing profile data
     if not request.user.is_authenticated:
         messages.info(request, "Login First")
         return redirect("app:login")
-        
+        messages.info(request, "Login First")
+        return redirect("app:login")
+
+    year = active_year() + 1
+    student = get_object_or_404(Student, user=request.user)
+
     show_update = request.GET.get("show_update")
     form = None
 
-    if show_update:
-        student = get_object_or_404(Student, user=request.user)
+    # Handle update POST from the profile page
+    if request.method == "POST":
+        form = ExistingUserUpdateForm(request.POST, instance=student)
+        if form.is_valid():
+            with transaction.atomic():
+                # ---- 1. UPDATE USER TABLE ----
+                request.user.email = form.cleaned_data.get("email", request.user.email)
+                request.user.save()
+
+                # ---- 2. UPDATE CATEGORY BASED ON CLASS ----
+                class_mapping = {
+                    "3": "Primary", "4": "Primary", "5": "Primary",
+                    "6": "Junior", "7": "Junior", "8": "Junior",
+                    "9": "Secondary", "10": "Secondary",
+                    "11": "Higher Secondary", "12": "Higher Secondary",
+                }
+                category = class_mapping.get(form.cleaned_data.get("student_class"), "Unknown")
+
+                # ---- 3. UPDATE STUDENT TABLE ----
+                student = form.save(commit=False)
+                student.category_name = category
+                student.save()
+
+                # ---- 4. REGISTER / UPDATE YEAR-WISE TABLE ----
+                year0 = active_year()
+                YearModel = get_year_model(year0)
+
+                reg_obj, created = YearModel.objects.get_or_create(
+                    username=request.user.username,
+                    defaults={
+                        "email": request.user.email,
+                        "school_name": student.school_name,
+                        "student": student,
+                    }
+                )
+
+                if not created:
+                    reg_obj.email = request.user.email
+                    reg_obj.school_name = student.school_name
+                    reg_obj.student = student
+                    reg_obj.save()
+
+                # ---- 5. RESULT TABLE ENTRY ----
+                Result.objects.update_or_create(
+                    year=year0,
+                    student=student,
+                    defaults={"registered_online": True}
+                )
+
+            messages.success(request, "Your registration has been updated successfully.")
+            return redirect("app:profile")
+        else:
+            messages.error(request, "Form validation failed. Please check your inputs.")
+
+    # If not a POST, prepare the form for display when requested
+    elif show_update:
         form = ExistingUserUpdateForm(instance=student)
-        form.fields["email"].initial = request.user.email  
+        form.fields["email"].initial = request.user.email
+
     profile = Student.objects.select_related('user').get(user=request.user)
     return render(
-        request,
-        "profile.html",
-        {"form": form, "show_update": show_update, "year": year, "profile_info": profile}
+        request, "profile.html", {"form": form, "show_update": show_update, "year": year, "profile_info": profile}
     )
