@@ -17,6 +17,53 @@ body {
     font-family: var(--font-family);
 }
 
+/* App layout */
+#app-root {
+    min-height: 100vh;
+}
+
+/* Sidebar styles */
+#sidebar{
+    width: 16.666667%; /* 2 cols of a 12-col layout */
+    max-width: 260px;
+    min-width: 80px;
+    height: 100vh;
+    transition: width 220ms ease, padding 200ms ease, background 200ms ease;
+    background: linear-gradient(180deg, rgba(8,10,28,1) 0%, rgba(20,24,48,1) 100%);
+}
+
+#sidebar .sidebar-top{ border-bottom: 1px solid rgba(255,255,255,0.06);}
+
+.sidebar-brand{letter-spacing:0.4px}
+
+.sidebar-menu .nav-link{ color: rgba(255,255,255,0.92); }
+.sidebar-menu .nav-link:hover{ background: rgba(255,255,255,0.03); color: #fff; }
+.sidebar-menu .nav-link.active{ background: rgba(255,255,255,0.06); }
+
+.menu-item i{ width: 24px; text-align:center }
+.menu-label { transition: opacity 180ms ease, margin 180ms ease; display: inline-block; }
+
+/* Collapsed state (icons only) */
+#sidebar.collapsed{ width: 5.5rem; }
+#sidebar.collapsed .menu-label{ opacity: 0; margin-left: 0; width: 0; overflow: hidden; }
+#sidebar.collapsed .sidebar-brand{ opacity: 0; width: 0; height: 0; overflow:hidden; }
+#sidebar.collapsed .menu-item{ padding-left: 0.85rem; padding-right:0.85rem; justify-content:center }
+
+/* Toggle icon animation */
+#sidebarToggle i{ transition: transform 200ms ease; }
+#sidebar.collapsed #sidebarToggle i{ transform: rotate(180deg); }
+
+/* MAIN CONTENT tweaks */
+#mainContent{ background: linear-gradient(180deg, rgba(13,15,31,1) 0%, rgba(7,9,22,1) 100%); min-height:100vh; }
+
+/* Responsive behaviour */
+@media (max-width: 991.98px){
+    /* make sidebar overlay on smaller screens */
+    #sidebar{ position: fixed; z-index: 1200; left: 0; top: 0; transform: translateX(0); width: 220px; }
+    #sidebar.collapsed{ transform: translateX(-110%); }
+    #mainContent{ padding-left: 1rem; padding-right:1rem; }
+}
+
 /* Toast Position */
 
 .toast-container {

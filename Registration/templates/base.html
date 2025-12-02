@@ -15,11 +15,58 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
 </head>
 <body>
-    {% block content %}{% endblock content %}
+    <div id="app-root" class="d-flex w-100 h-100">
+
+        <!-- LEFT SIDEBAR (2 cols on large screens) -->
+        <aside id="sidebar" class="bg-dark text-light d-flex flex-column align-items-stretch shadow-sm">
+            <div class="sidebar-top d-flex align-items-center justify-content-between p-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-cubes fa-lg"></i>
+                    <span class="fs-5 fw-bold sidebar-brand">Portal</span>
+                </div>
+                <button id="sidebarToggle" class="btn btn-sm btn-outline-light rounded-circle" aria-label="Toggle menu">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <nav class="nav flex-column sidebar-menu p-2 mt-2">
+                <a class="nav-link text-light d-flex align-items-center p-2 rounded-2 menu-item" href="{% url 'app:home' %}">
+                    <i class="fa-solid fa-house fa-fw me-3"></i>
+                    <span class="menu-label">Home</span>
+                </a>
+
+                <a class="nav-link text-light d-flex align-items-center p-2 rounded-2 menu-item" href="{% url 'app:register_new' %}">
+                    <i class="fa-solid fa-user-plus fa-fw me-3"></i>
+                    <span class="menu-label">Register</span>
+                </a>
+
+                <a class="nav-link text-light d-flex align-items-center p-2 rounded-2 menu-item" href="{% url 'app:profile' %}">
+                    <i class="fa-solid fa-user fa-fw me-3"></i>
+                    <span class="menu-label">Profile</span>
+                </a>
+
+                <a class="nav-link text-light d-flex align-items-center p-2 rounded-2 menu-item" href="{% url 'app:login' %}">
+                    <i class="fa-solid fa-right-to-bracket fa-fw me-3"></i>
+                    <span class="menu-label">Login</span>
+                </a>
+
+                <a class="nav-link text-light d-flex align-items-center p-2 rounded-2 menu-item" href="{% url 'app:logout' %}">
+                    <i class="fa-solid fa-right-from-bracket fa-fw me-3"></i>
+                    <span class="menu-label">Logout</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer mt-auto p-3 small text-muted">© {% now "Y" %} Portal</div>
+        </aside>
+
+        <!-- MAIN CONTENT (rest of screen) -->
+        <main id="mainContent" class="flex-grow-1 p-4">
+            {% block content %}{% endblock content %}
 
 
 
-    <!-- 🔥 TOAST NOTIFICATION BLOCK -->
+
+            <!-- 🔥 TOAST NOTIFICATION BLOCK -->
     <div class="toast-container">
         {% if messages %}
             {% for message in messages %}
@@ -66,7 +113,9 @@
         {% endif %}
     </div>
 
-    <!-- END TOAST -->
+            <!-- END TOAST -->
+        </main>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

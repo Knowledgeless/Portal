@@ -17,6 +17,15 @@
                     <form id="registrationForm" method="POST">
                         {% csrf_token %}
 
+                        {# Show any non-field errors and top-level form errors #}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for err in form.non_field_errors %}
+                                    <div>{{ err }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
                         <div id="step-1">
                             <h5 class="mb-4 text-primary">Step 1 of 2: Personal Information</h5>
 
@@ -42,6 +51,27 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="id_dob" class="form-label">Date of Birth *</label>
                                     {{ form.dob }}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_gender" class="form-label">Gender *</label>
+                                    {{ form.gender }}
+                                    {{ form.gender.errors }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_password" class="form-label">Password *</label>
+                                    {{ form.password }}
+                                    {{ form.password.errors }}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_confirm_password" class="form-label">Confirm Password *</label>
+                                    {{ form.confirm_password }}
+                                    {{ form.confirm_password.errors }}
                                 </div>
                             </div>
 
