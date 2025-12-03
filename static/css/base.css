@@ -13,6 +13,11 @@ body {
     color: white;
 }
 
+.form-control:focus, .form-control:active, .form-control.focused, .form-control.active, .form-control:focus-visible, .form-control:focus-within,  .form-control:focus, .form-control:active, .form-control.focused, .form-control.active, .form-control:focus-visible, .form-control:focus-within, button:focus:not(:focus-visible) {
+    box-shadow: none !important;
+}
+
+
 #layout {
     display: flex;
     width: 100%;
