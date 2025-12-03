@@ -44,3 +44,24 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+document.addEventListener("DOMContentLoaded", () => {
+
+    const sidebar = document.getElementById("sidebar");
+    const toggleBtn = document.getElementById("toggleSidebar");
+
+    // Restore saved state
+    if (localStorage.getItem("sidebarExpanded") === "true") {
+        sidebar.classList.add("expanded");
+    }
+
+    toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("expanded");
+
+        // Save state
+        localStorage.setItem(
+            "sidebarExpanded",
+            sidebar.classList.contains("expanded")
+        );
+    });
+
+});

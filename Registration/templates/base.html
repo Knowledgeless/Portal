@@ -5,69 +5,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> {% block title %}{% endblock title %} </title>
+    <title>{% block title %}{% endblock title %}</title>
 
-    <!-- Link to CSS file -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-    {% block links %}{% endblock links %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block links %}{% endblock links %}
 </head>
 <body>
-    <div id="app-root" class="d-flex w-100 h-100">
 
-        <!-- LEFT SIDEBAR (2 cols on large screens) -->
-        <aside id="sidebar" class="bg-dark text-light d-flex flex-column align-items-stretch shadow-sm">
-            <div class="sidebar-top d-flex align-items-center justify-content-between p-3">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-cubes fa-lg"></i>
-                    <span class="fs-5 fw-bold sidebar-brand">Portal</span>
-                </div>
-                <button id="sidebarToggle" class="btn btn-sm btn-outline-light rounded-circle" aria-label="Toggle menu">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
+<div id="layout">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="glass">
+
+        <div class="sidebar-top">
+            <div class="logo">
+                <span>Portal</span> 
             </div>
 
-            <nav class="nav flex-column sidebar-menu p-2 mt-2">
-                <a class="nav-link text-light d-flex align-items-center p-2 rounded-2 menu-item" href="{% url 'app:home' %}">
-                    <i class="fa-solid fa-house fa-fw me-3"></i>
-                    <span class="menu-label">Home</span>
+            <button id="toggleSidebar" class="toggle-btn ">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <nav class="menu">
+            <a href="{% url 'app:home' %}"
+               class="menu-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'app:profile' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Profile</span>
+                </a>
+                <a href="{% url 'app:logout' %}" class="menu-item">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+                {% else %}
+                <a href="{% url 'app:register_new' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'register_new' %}active{% endif %}">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Register</span>
                 </a>
 
-                <a class="nav-link text-light d-flex align-items-center p-2 rounded-2 menu-item" href="{% url 'app:register_new' %}">
-                    <i class="fa-solid fa-user-plus fa-fw me-3"></i>
-                    <span class="menu-label">Register</span>
+                <a href="{% url 'app:login' %}"
+                class="menu-item {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Login</span>
                 </a>
+            {% endif %}
+        </nav>
+    </aside>
 
-                <a class="nav-link text-light d-flex align-items-center p-2 rounded-2 menu-item" href="{% url 'app:profile' %}">
-                    <i class="fa-solid fa-user fa-fw me-3"></i>
-                    <span class="menu-label">Profile</span>
-                </a>
+    <!-- MAIN CONTENT -->
+    <main id="content">
+        {% block content %}{% endblock content %}
+    </main>
 
-                <a class="nav-link text-light d-flex align-items-center p-2 rounded-2 menu-item" href="{% url 'app:login' %}">
-                    <i class="fa-solid fa-right-to-bracket fa-fw me-3"></i>
-                    <span class="menu-label">Login</span>
-                </a>
-
-                <a class="nav-link text-light d-flex align-items-center p-2 rounded-2 menu-item" href="{% url 'app:logout' %}">
-                    <i class="fa-solid fa-right-from-bracket fa-fw me-3"></i>
-                    <span class="menu-label">Logout</span>
-                </a>
-            </nav>
-
-            <div class="sidebar-footer mt-auto p-3 small text-muted">© {% now "Y" %} Portal</div>
-        </aside>
-
-        <!-- MAIN CONTENT (rest of screen) -->
-        <main id="mainContent" class="flex-grow-1 p-4">
-            {% block content %}{% endblock content %}
-
-
-
-
-            <!-- 🔥 TOAST NOTIFICATION BLOCK -->
-    <div class="toast-container">
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
         {% if messages %}
             {% for message in messages %}
                 
@@ -113,13 +113,18 @@
         {% endif %}
     </div>
 
-            <!-- END TOAST -->
-        </main>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static "js/base.js" %}"></script>
+
+
+</div>
+
+    
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/base.js' %}"></script>
 
 </body>
 </html>
