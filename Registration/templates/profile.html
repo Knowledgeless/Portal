@@ -8,38 +8,93 @@
 
 {% block content %}
 
-<div class="container my-5">
-    <h2 class="mb-4">Welcome to your Profile</h2>
+<h2 class="mb-3">
+    <span class="welcome">Welcome Back..!</span>  
+</h2>
 
-    <a href="{% url 'app:logout' %}" class="btn btn-danger mb-4">Logout</a>
-    <br>{{ user.username }}
-    <div class="profile-details">
-        <p>Full Name: {{ profile_info.full_name }}</p>
-        <p>Email: {{ user.email }}</p>
-        <p>Phone: {{ profile_info.phone }}</p>
-        <p>Date of Birth: {{ profile_info.dob }}</p>
-        <p>School Name: {{ profile_info.school_name }}</p>
-        <p>Class: {{ profile_info.student_class }}</p>
-        <p>Category: {{ profile_info.category_name }}</p>
-        <p>Division: {{ profile_info.division }}</p>
-        <p>District: {{ profile_info.district }}</p>
-        <p>Upazila: {{ profile_info.upazila }}</p>
-        <p>Gender: {{ profile_info.gender }}</p>
+<div class="py-3">
+    <div class="glass-card p-3 p-md-4 shadow-sm">
+        <div class="row g-3 align-items-center">
+            <div class="col-auto text-center">
+                <img src="{% static 'img/profile.jpg' %}" alt="avatar" class="rounded-circle avatar">
+            </div>
+
+            <div class="col">
+                <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between">
+                    <div>
+                        <h3 class="mb-1 t-fullname fw-bold text-light" style="letter-spacing: -0.5px;">{{ profile_info.full_name }}</h3>
+                        <div class="text-light">
+                            {{ user.username }}
+                            {% if profile_info.school_name %}<span class="mx-2">|</span>{{ profile_info.school_name }}{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-3 mt-sm-0">
+                        {% if not registered_for_year %}
+                            <a href="{% url 'app:profile' %}?register=1" class="btn btn-info text-white">
+                                <i class="fa-solid fa-user-plus"></i> <span class="ex-reg"> Register for {{ year }}</span>
+                            </a>
+                        {% else %}
+                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#updateModal">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <div class="profile-label">Full Name: {{ profile_info.full_name}}</div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="profile-label">Email: {{  user.email }}</div>
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <div class="profile-label">Mobile: {{ profile_info.phone }}</div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="profile-label">Date of Birth: {{ profile_info.dob }}</div>
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <div class="profile-label">Class: {{ profile_info.student_class }}</div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="profile-label">Category: {{ profile_info.category_name }}</div>
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <div class="profile-label">Division: {{ profile_info.division }}</div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="profile-label">District: {{ profile_info.district }}</div>
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                        <div class="profile-label">Upazila: {{ profile_info.upazila }}</div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="profile-label">Gender: {{ profile_info.gender }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
 
-{% if show_update %}
-<div class="modal fade show" id="updateModal"
-     tabindex="-1"
-     style="display:block; background:rgba(0,0,0,0.5);"
-     aria-modal="true">
 
+{% if show_modal %}
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content shadow rounded-3">
 
             <div class="modal-header">
-                <h5 class="modal-title fw-bold">Update Information for {{ year }}</h5>
-                <a href="{% url 'app:profile' %}" class="btn-close"></a>
+                <h5 class="modal-title fw-bold" id="updateModalLabel">{% if not registered_for_year %}Register for {{ year }}{% else %}Update Information for {{ year }}{% endif %}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">

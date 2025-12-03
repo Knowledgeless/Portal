@@ -5,7 +5,7 @@ body {
     height: 100vh;
 }
 
-.container {
+.reg {
     text-align: center;
     background: white !important;
     color: black !important;
@@ -34,7 +34,12 @@ h1 {
     background-color: #17a2b8 !important;
 }
 
-
+.option{
+    text-transform: capitalize;
+    font-size: 20px;
+    margin-top: 10px;
+    font-weight: 500;
+}
 .btn {
     text-decoration: none;
     background-color: var(--primary-color);

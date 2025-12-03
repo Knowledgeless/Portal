@@ -16,3 +16,38 @@
 #profileCard .row div {
     margin-bottom: 10px;
 }
+
+
+
+.glass-card{
+    background: rgba(255, 255, 255, 0.138);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 14px;
+}
+.avatar{
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 3px solid rgba(255,255,255,0.7);
+    box-shadow: 0 6px 18px rgba(12,35,64,0.06);
+}
+.t-fullname{
+    font-size: 36px;
+}
+.profile-label{
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 400 !important;
+}
+.ex-reg{
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+}
+.welcome{
+    font-size: 52px;
+    font-weight:600;
+    color:#ffffff;
+}

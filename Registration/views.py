@@ -239,7 +239,13 @@ def profile_view(request):
     year = active_year() + 1
     student = get_object_or_404(Student, user=request.user)
 
-    show_update = request.GET.get("show_update")
+    # Check if user is registered for current active year
+    year0 = active_year()
+    YearModel = get_year_model(year0)
+    registered_for_year = YearModel.objects.filter(username=request.user.username).exists()
+
+    # Show form if user explicitly requests it via ?register=1 or if user is registered (for edit)
+    show_update = request.GET.get("show_update") or request.GET.get("register")
     form = None
 
     # Handle update POST from the profile page
@@ -300,8 +306,38 @@ def profile_view(request):
     elif show_update:
         form = ExistingUserUpdateForm(instance=student)
         form.fields["email"].initial = request.user.email
+        # Populate dynamic choice fields
+        form.fields['division'].choices = [("", "-- Select Division --")] + [(d, d) for d in DIVISION_LIST]
+        if student.division in GEOGRAPHY_DATA:
+            districts = list(GEOGRAPHY_DATA[student.division].keys())
+            form.fields['district'].choices = [("", "-- Select District --")] + [(d, d) for d in districts]
+        if student.division in GEOGRAPHY_DATA and student.district in GEOGRAPHY_DATA[student.division]:
+            upazilas = GEOGRAPHY_DATA[student.division][student.district]
+            form.fields['upazila'].choices = [("", "-- Select Upazila --")] + [(u, u) for u in upazilas]
+    
+    # Always initialize form if modal should be shown (for both register and edit)
+    if (show_update or registered_for_year) and not form:
+        form = ExistingUserUpdateForm(instance=student)
+        form.fields["email"].initial = request.user.email
+        # Populate dynamic choice fields
+        form.fields['division'].choices = [("", "-- Select Division --")] + [(d, d) for d in DIVISION_LIST]
+        if student.division in GEOGRAPHY_DATA:
+            districts = list(GEOGRAPHY_DATA[student.division].keys())
+            form.fields['district'].choices = [("", "-- Select District --")] + [(d, d) for d in districts]
+        if student.division in GEOGRAPHY_DATA and student.district in GEOGRAPHY_DATA[student.division]:
+            upazilas = GEOGRAPHY_DATA[student.division][student.district]
+            form.fields['upazila'].choices = [("", "-- Select Upazila --")] + [(u, u) for u in upazilas]
 
     profile = Student.objects.select_related('user').get(user=request.user)
     return render(
-        request, "profile.html", {"form": form, "show_update": show_update, "year": year, "profile_info": profile}
+        request, 
+        "profile.html", 
+        {
+            "form": form, 
+            "show_update": show_update,
+            "show_modal": show_update or registered_for_year,  # Show modal HTML if registering or editing
+            "year": year, 
+            "profile_info": profile,
+            "registered_for_year": registered_for_year
+        }
     )

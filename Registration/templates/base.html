@@ -46,7 +46,7 @@
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Logout</span>
                 </a>
-                {% else %}
+            {% else %}
                 <a href="{% url 'app:register_new' %}"
                 class="menu-item {% if request.resolver_match.url_name == 'register_new' %}active{% endif %}">
                     <i class="fa-solid fa-user-plus"></i>
