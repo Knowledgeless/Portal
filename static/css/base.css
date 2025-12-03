@@ -1,133 +1,269 @@
+
+
 :root {
-    --blue: #4d9bff;
-    --blue-hover: rgba(77, 155, 255, 0.25);
-    --blue-active: rgba(77, 155, 255, 0.35);
-    --sidebar-width: 70px;
-    --sidebar-expanded: 220px;
+  /* color tokens */
+  --bg-900: #0b0e1a;
+  --panel-800: rgba(255, 255, 255, 0.04);
+  --muted: rgba(255, 255, 255, 0.72);
+  --accent: #4d9bff;
+  --accent-opaque: rgba(77, 155, 255, 0.12);
+
+  /* spacing scale (rem) */
+  --sp-xxs: 0.25rem; /* 4px */
+  --sp-xs: 0.5rem; /* 8px */
+  --sp-sm: 0.75rem; /* 12px */
+  --sp-md: 1rem; /* 16px */
+  --sp-lg: 1.5rem; /* 24px */
+  --sp-xl: 2rem; /* 32px */
+
+  /* layout */
+  --toggle-size: 1.55rem; /* ~36px */
+  --sidebar-collapsed: clamp(3rem, 9vw, 5rem); /* ~56-80px */
+  --sidebar-expanded: clamp(10rem, 15vw, 12rem); /* ~200-256px */
+
+  /* breakpoints (min-width based) */
+  --bp-sm: 36rem; /* 576px */
+  --bp-md: 48rem; /* 768px */
+  --bp-lg: 62rem; /* 992px */
+  --bp-xl: 75rem; /* 1200px */
+
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color-scheme: dark;
+}
+
+/* Base */
+html,
+body {
+  height: 100%;
 }
 
 body {
-    background: #0b0e1a;
-    margin: 0;
-    font-family: "Inter", sans-serif;
-    color: white;
+  margin: 0;
+  background: var(--bg-900);
+  color: var(--muted);
+  font-size: 16px; /* fallback */
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
 }
 
-.form-control:focus, .form-control:active, .form-control.focused, .form-control.active, .form-control:focus-visible, .form-control:focus-within,  .form-control:focus, .form-control:active, .form-control.focused, .form-control.active, .form-control:focus-visible, .form-control:focus-within, button:focus:not(:focus-visible) {
-    box-shadow: none !important;
+/* Utility: remove focus outline unless keyboard-used */
+.form-control:focus,
+.form-control:active,
+.form-control.focused,
+.form-control.active,
+.form-control:focus-visible,
+.form-control:focus-within,
+.form-control:focus,
+.form-control:active,
+.form-control.focused,
+.form-control.active,
+.form-control:focus-visible,
+.form-control:focus-within,
+button:focus:not(:focus-visible) {
+  box-shadow: none !important;
 }
 
-
+/* Container layout */
 #layout {
-    display: flex;
-    width: 100%;
-    min-height: 100vh;
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
 }
 
-/* GLASS SIDEBAR */
+/* Sidebar (mobile-first) */
 #sidebar {
-    width: var(--sidebar-width);
-    height: 100vh;
-    backdrop-filter: blur(14px);
-    background: rgba(255, 255, 255, 0.05);
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
-    transition: width 0.25s ease;
-    position: fixed;
-    left: 0;
-    top: 0;
-    padding-top: 15px;
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
+  --sb-width: var(--sidebar-collapsed);
+  width: var(--sb-width);
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  padding: calc(var(--sp-sm)) var(--sp-sm);
+  transition: width 220ms cubic-bezier(.2, .9, .2, 1), transform 260ms ease;
+  z-index: 1200;
 }
 
 #sidebar.expanded {
-    width: var(--sidebar-expanded);
+  --sb-width: var(--sidebar-expanded);
+  width: var(--sb-width);
 }
 
-/* TOP AREA */
+/* Top area / brand */
 .sidebar-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+  min-height: calc(var(--sp-lg) + var(--sp-xs));
 }
 
-.logo i {
-    font-size: 22px;
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
 }
 
-/* Toggle Button */
+.logo span {
+  font-weight: 600;
+  color: #fff;
+  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
+  max-width: 70%;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: ellipsis;
+}
+
+/* Toggle: centered on the vertical edge, half-visible outside the sidebar */
 .toggle-btn {
-    z-index: 1100;
-    background: none;
-    border: none;
-    color: white;
-    padding: 4px;
-    cursor: pointer;
-    transition: transform 0.25s ease;
+  position: absolute;
+  top: 50%;
+  right: calc(-1 * (var(--toggle-size) / 2));
+  transform: translateY(-50%);
+  width: var(--toggle-size);
+  height: var(--toggle-size);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  color: #0b0e1a;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.55);
 }
 
 .toggle-btn i {
-    margin: 50vh 0;
-    padding: 5px 8px;
-    background-color: white;
-    color: black;
-    position: absolute;
-    border-radius: 100%;
-    font-size: 15px;
-    font-weight: 900 !important;
-    transition: transform 0.25s ease;
+  font-size: 0.9rem;
 }
 
-#sidebar.expanded .toggle-btn i {
-    transform: rotate(180deg);
+#sidebar.expanded .toggle-btn {
+  right: calc(-1 * (var(--toggle-size) / 2));
 }
 
-/* MENU */
+/* Menu */
 .menu {
-    margin-top: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+  margin-top: calc(var(--sp-md));
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0;
 }
 
 .menu-item {
-    margin: 0 0 0 10px;
-    width: 80%;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    gap: 14px;
-    padding: 12px 15px;
-    color: rgba(255,255,255,0.85);
-    text-decoration: none;
-    border-radius: 10px;
-    transition: 0.22s ease;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.3rem;
+  color: var(--muted);
+  text-decoration: none;
 }
 
-/* Icons centered when collapsed */
+.menu-item i {
+  width: 1.25rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* collapsed view: hide labels, center icons */
 #sidebar:not(.expanded) .menu-item span {
-    display: none;
+  display: none;
 }
 
-/* ACTIVE & HOVER */
-.menu-item:hover, .menu-item.active {
-    background: rgba(255, 255, 255, 0.125);
-    color: white;
+#sidebar:not(.expanded) .menu-item {
+  justify-content: center;
 }
 
+.menu-item:hover,
+.menu-item.active {
+  background: var(--accent-opaque);
+  color: #fff;
+}
 
-/* MAIN CONTENT */
+/* Main content area should flow to the right of the sidebar */
 #content {
-    flex-grow: 1;
-    margin-left: var(--sidebar-width);
-    padding: 30px;
-    width: calc(100% - var(--sidebar-width));
-    transition: margin 0.25s ease, width 0.25s ease;
+  flex: 1 1 auto;
+  margin-left: var(--sidebar-collapsed);
+  padding: clamp(1rem, 2.5vw, 2.5rem);
+  transition: margin 220ms cubic-bezier(.2, .9, .2, 1), width 220ms cubic-bezier(.2, .9, .2, 1);
 }
+
+.toggle-btn {
+    /* ...existing styles... */
+    transition: transform 220ms cubic-bezier(.2, .9, .2, 1);
+}
+
+#sidebar.expanded .toggle-btn {
+    /* ...existing styles... */
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.toggle-btn {
+    transform: translateY(-50%) rotate(0deg);
+}
+
 
 #sidebar.expanded ~ #content {
-    margin-left: var(--sidebar-expanded);
-    width: calc(100% - var(--sidebar-expanded));
+  margin-left: var(--sidebar-expanded);
 }
+
+/* Responsive behavior: medium and up use expanded sidebar by default on desktops */
+@media (min-width: var(--bp-lg)) {
+  #sidebar {
+    --sb-width: var(--sidebar-collapsed);
+  }
+
+  /* prefer expanded on xl screens */
+  @media (min-width: var(--bp-xl)) {
+    #sidebar {
+      --sb-width: var(--sidebar-expanded);
+      width: var(--sb-width);
+    }
+  }
+}
+
+/* Overlay behaviour for smaller screens: expanded = visible overlay */
+@media (max-width: calc(var(--bp-lg) - 0.02px)) {
+  #sidebar {
+    transform: translateX(calc(-1 * (var(--sb-width) - var(--sidebar-collapsed))));
+  }
+
+  #sidebar.expanded {
+    transform: translateX(0);
+    box-shadow: 0 10px 40px rgba(2, 6, 23, 0.6);
+  }
+
+  #content {
+    margin-left: 0;
+  }
+}
+
+/* Accessibility & reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* Small tweaks for form controls used site-wide */
+.form-control {
+  border-radius: 0.35rem;
+}
+
+.btn {
+  border-radius: 0.45rem;
+}
+
+/* Minor utility classes used elsewhere */
+.text-muted {
+  color: var(--muted);
+}
+
+/* End of file */

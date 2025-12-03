@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const toastElList = [].slice.call(document.querySelectorAll('.toast'));
-    toastElList.map(function (toastEl) {
+    toastElList.forEach(function (toastEl) {
         const toast = new bootstrap.Toast(toastEl);
         toast.show();
 
@@ -11,57 +11,54 @@ document.addEventListener("DOMContentLoaded", function () {
             setTimeout(() => progress.style.width = "0%", 50);
         }
     });
-    
-    // SIDEBAR TOGGLE + STATE
+
+    // Unified sidebar toggle handler
     const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('sidebarToggle');
+    const toggleBtn = document.getElementById('toggleSidebar') || document.querySelector('.toggle-btn');
+    const arrow = toggleBtn ? toggleBtn.querySelector('.arrow') : null;
 
-    // restore previous state
+    function isSmallScreen(){
+        return window.matchMedia('(max-width: 991.98px)').matches;
+    }
+
+    // Restore saved state (expanded true/false)
     try{
-        const wasCollapsed = localStorage.getItem('sidebarCollapsed');
-        if (wasCollapsed === 'true') sidebar.classList.add('collapsed');
-    } catch(e){ /* localStorage disabled */ }
+        if (localStorage.getItem('sidebarExpanded') === 'true') sidebar.classList.add('expanded');
+    } catch(e){}
 
-    if(toggleBtn && sidebar){
-        toggleBtn.addEventListener('click', function(){
-            sidebar.classList.toggle('collapsed');
-            // persist state
-            try{ localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed')) } catch(e){}
+    // Set arrow rotation on load
+    if (arrow && sidebar.classList.contains('expanded')) {
+        arrow.style.transform = 'rotate(180deg)';
+    }
+
+    if (toggleBtn && sidebar){
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('expanded');
+            try{ localStorage.setItem('sidebarExpanded', sidebar.classList.contains('expanded')) } catch(e){}
+            if (arrow) arrow.style.transform = sidebar.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
         });
 
-        // Hide the sidebar on small screens when clicking outside
+        // Close sidebar when clicking outside on small screens
         document.addEventListener('click', (e) => {
-            const isSmallScreen = window.matchMedia('(max-width: 991.98px)').matches;
-            if(!isSmallScreen) return;
-            if(!sidebar.classList.contains('collapsed')){
-                if(!sidebar.contains(e.target) && e.target !== toggleBtn && !toggleBtn.contains(e.target)){
-                    sidebar.classList.add('collapsed');
-                    try{ localStorage.setItem('sidebarCollapsed', 'true') } catch(e){}
-                }
+            if (!isSmallScreen()) return;
+            if (!sidebar.classList.contains('expanded')) return;
+            if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)){
+                sidebar.classList.remove('expanded');
+                try{ localStorage.setItem('sidebarExpanded','false') } catch(e){}
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            }
+        });
+
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isSmallScreen() && sidebar.classList.contains('expanded')){
+                sidebar.classList.remove('expanded');
+                try{ localStorage.setItem('sidebarExpanded','false') } catch(e){}
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
             }
         });
     }
-});
-
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const sidebar = document.getElementById("sidebar");
-    const toggleBtn = document.getElementById("toggleSidebar");
-
-    // Restore saved state
-    if (localStorage.getItem("sidebarExpanded") === "true") {
-        sidebar.classList.add("expanded");
-    }
-
-    toggleBtn.addEventListener("click", () => {
-        sidebar.classList.toggle("expanded");
-
-        // Save state
-        localStorage.setItem(
-            "sidebarExpanded",
-            sidebar.classList.contains("expanded")
-        );
-    });
 
 });
+

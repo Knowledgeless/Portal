@@ -28,9 +28,13 @@ h1 {
 }
 
 .new_reg {
+    font-weight: 700;
+    font-size: 0.85rem !important;
     background-color: #1b6ba8 !important;
 }
 .preg_reg {
+    font-weight: 700;
+    font-size: 0.85rem !important;
     background-color: #17a2b8 !important;
 }
 
