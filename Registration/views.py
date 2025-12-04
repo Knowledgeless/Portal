@@ -11,6 +11,9 @@ from Registration.view_address import DIVISION_LIST, GEOGRAPHY_DATA
 
 from .forms import NewUserRegistrationForm, ExistingUserUpdateForm, LoginForm
 from .models import Student, Year2025, Result, active_year, generate_next_numeric_username, get_year_model
+from django.db.models import Q
+
+from django.http import HttpResponseForbidden
 
 def home(request):
     return render(request, "home.html")
@@ -203,6 +206,10 @@ def login_view(request):
     if request.method == "POST" and form.is_valid():
         user = form.get_user()
         login(request, user)
+        # If admin/staff, send to admin dashboard
+        if user.is_staff or user.is_superuser:
+            messages.success(request, f"Welcome back, {user.username}.")
+            return redirect("app:admin_view")
 
         year = active_year()
         YearModel = get_year_model(year)
@@ -237,7 +244,14 @@ def profile_view(request):
         return redirect("app:login")
 
     year = active_year() + 1
-    student = get_object_or_404(Student, user=request.user)
+    # Try to get associated Student. If None and user is admin, redirect to admin.
+    try:
+        student = Student.objects.get(user=request.user)
+    except Student.DoesNotExist:
+        if request.user.is_staff or request.user.is_superuser:
+            return redirect('app:admin_view')
+        # for normal users, create a minimal Student record so profile works
+        student = Student.objects.create(user=request.user, full_name=request.user.get_full_name() or request.user.username)
 
     # Check if user is registered for current active year
     year0 = active_year()
@@ -341,3 +355,108 @@ def profile_view(request):
             "registered_for_year": registered_for_year
         }
     )
+
+
+@login_required
+def admin_view(request):
+    # Only staff/superuser can access
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("Admin area")
+    # Stats-only view (modern UI can be applied in template)
+    total_users = User.objects.count()
+    total_students = Student.objects.count()
+    total_registered = 0
+    try:
+        YearModel = get_year_model(active_year())
+        total_registered = YearModel.objects.count()
+    except Exception:
+        total_registered = 0
+
+    context = {
+        "total_users": total_users,
+        "total_students": total_students,
+        "total_registered": total_registered,
+    }
+    return render(request, "admin/dashboard.html", context)
+
+
+@login_required
+def admin_profile_view(request, username):
+    # Only staff/superuser can access
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("Admin area")
+
+    user = get_object_or_404(User, username=username)
+    student = get_object_or_404(Student, user=user)
+
+    form = None
+    if request.method == "POST":
+        # support update and password change
+        if "new_password" in request.POST and request.POST.get("new_password"):
+            new_password = request.POST.get("new_password")
+            user.set_password(new_password)
+            user.save()
+            messages.success(request, f"Password updated for {user.username}")
+            return redirect("app:admin_profile", username=user.username)
+
+        form = ExistingUserUpdateForm(request.POST, instance=student)
+        if form.is_valid():
+            with transaction.atomic():
+                # update user email
+                user.email = form.cleaned_data.get("email", user.email)
+                user.save()
+                # update student
+                student = form.save(commit=False)
+                # update category mapping similar to profile_view
+                class_mapping = {
+                    "3": "Primary", "4": "Primary", "5": "Primary",
+                    "6": "Junior", "7": "Junior", "8": "Junior",
+                    "9": "Secondary", "10": "Secondary",
+                    "11": "Higher Secondary", "12": "Higher Secondary",
+                }
+                student.category_name = class_mapping.get(form.cleaned_data.get("student_class"), student.category_name)
+                student.save()
+            messages.success(request, f"Updated user {user.username}")
+            return redirect("app:admin_profile", username=user.username)
+        else:
+            messages.error(request, "Form validation failed.")
+    else:
+        form = ExistingUserUpdateForm(instance=student)
+        form.fields["email"].initial = user.email
+
+    # populate choices
+    form.fields['division'].choices = [("", "-- Select Division --")] + [(d, d) for d in DIVISION_LIST]
+    if student.division in GEOGRAPHY_DATA:
+        districts = list(GEOGRAPHY_DATA[student.division].keys())
+        form.fields['district'].choices = [("", "-- Select District --")] + [(d, d) for d in districts]
+    if student.division in GEOGRAPHY_DATA and student.district in GEOGRAPHY_DATA[student.division]:
+        upazilas = GEOGRAPHY_DATA[student.division][student.district]
+        form.fields['upazila'].choices = [("", "-- Select Upazila --")] + [(u, u) for u in upazilas]
+
+    context = {
+        "target_user": user,
+        "profile_info": student,
+        "form": form,
+    }
+    return render(request, "admin/profile.html", context)
+
+
+@login_required
+def admin_search_view(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("Admin area")
+
+    q = request.GET.get("q", "").strip()
+    results = []
+    if q:
+        results = Student.objects.select_related('user').filter(
+            Q(user__username__icontains=q) |
+            Q(user__email__icontains=q) |
+            Q(phone__icontains=q)
+        ).order_by('user__username')[:200]
+
+    context = {
+        "q": q,
+        "results": results,
+    }
+    return render(request, "admin/search.html", context)

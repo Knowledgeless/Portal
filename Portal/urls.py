@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # move Django's admin to a non-conflicting path so the app's own admin (/manage/) can be used
+    path('django-admin/', admin.site.urls),
     path('', include('Registration.urls')),
 ]

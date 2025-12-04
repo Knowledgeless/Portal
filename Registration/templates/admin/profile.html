@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Admin - {{ target_user.username }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>User: {{ target_user.username }}</h3>
+    <div>
+      <a href="{% url 'app:admin_view' %}" class="btn btn-outline-secondary btn-sm">Back to Admin</a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card p-3 mb-3">
+        <div class="fw-semibold">Full name</div>
+        <div>{{ profile_info.full_name }}</div>
+        <hr>
+        <div class="fw-semibold">Email</div>
+        <div>{{ target_user.email }}</div>
+        <hr>
+        <div class="fw-semibold">Phone</div>
+        <div>{{ profile_info.phone }}</div>
+      </div>
+
+      <div class="card p-3">
+        <form method="post" class="d-flex gap-2">
+          {% csrf_token %}
+          <input name="new_password" class="form-control form-control-sm" placeholder="New password">
+          <button class="btn btn-sm btn-warning">Change</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card p-3">
+        <h5>Edit user information</h5>
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="btn btn-primary">Save changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

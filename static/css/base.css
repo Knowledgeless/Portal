@@ -110,6 +110,10 @@ button:focus:not(:focus-visible) {
   flex: 0 0 auto;
 }
 
+.logo a {
+  text-decoration: none;
+}
+
 .logo span {
   font-weight: 600;
   color: #fff;
