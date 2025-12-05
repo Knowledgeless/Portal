@@ -13,6 +13,7 @@ urlpatterns = [
     # Admin: view any user's profile by username (placed BEFORE profile/ to take precedence)
     path("profile/<str:username>/", views.admin_profile_view, name="admin_profile"),
     path("manage/search/", views.admin_search_view, name="admin_search"),
+    path("manage/export/", views.admin_export_view, name="admin_export"),
     # path("update-existing-user/", views.prev_user_update_registration, name="prev_user_update_registration"),
     # Previous user flow (login required)  
     # path("update-registration/", views.prev_user_update_registration, name="prev_user_update_registration"),

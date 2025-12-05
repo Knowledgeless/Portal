@@ -136,19 +136,25 @@ button:focus:not(:focus-visible) {
   place-items: center;
   border-radius: 50%;
   border: none;
-  background: #fff;
-  color: #0b0e1a;
+  background: rgb(0, 255, 238);
+  color: #000 !important;
   cursor: pointer;
   box-shadow: 0 6px 18px rgba(2, 6, 23, 0.55);
+  transition: transform 220ms cubic-bezier(.2, .9, .2, 1);
+
 }
 
 .toggle-btn i {
+  color: #000 !important;
   font-size: 0.9rem;
+  
 }
 
 #sidebar.expanded .toggle-btn {
   right: calc(-1 * (var(--toggle-size) / 2));
 }
+
+
 
 /* Menu */
 .menu {
@@ -199,10 +205,7 @@ button:focus:not(:focus-visible) {
   transition: margin 220ms cubic-bezier(.2, .9, .2, 1), width 220ms cubic-bezier(.2, .9, .2, 1);
 }
 
-.toggle-btn {
-    /* ...existing styles... */
-    transition: transform 220ms cubic-bezier(.2, .9, .2, 1);
-}
+
 
 #sidebar.expanded .toggle-btn {
     /* ...existing styles... */
@@ -240,6 +243,7 @@ button:focus:not(:focus-visible) {
   }
 
   #sidebar.expanded {
+    color: black !important;
     transform: translateX(0);
     box-shadow: 0 10px 40px rgba(2, 6, 23, 0.6);
   }

@@ -14,6 +14,9 @@ from .models import Student, Year2025, Result, active_year, generate_next_numeri
 from django.db.models import Q
 
 from django.http import HttpResponseForbidden
+from django.http import HttpResponse
+import csv
+import json
 
 def home(request):
     return render(request, "home.html")
@@ -362,20 +365,76 @@ def admin_view(request):
     # Only staff/superuser can access
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponseForbidden("Admin area")
-    # Stats-only view (modern UI can be applied in template)
+    # Stats-only view (modern UI applied in template)
     total_users = User.objects.count()
     total_students = Student.objects.count()
-    total_registered = 0
+
+    # Year-wise registrations for active and previous year
+    year0 = active_year()
+    YearModel = get_year_model(year0)
+    total_registered = YearModel.objects.count() if YearModel else 0
+    # previous year
     try:
-        YearModel = get_year_model(active_year())
-        total_registered = YearModel.objects.count()
+        PrevYearModel = get_year_model(year0 - 1)
+        prev_registered = PrevYearModel.objects.count()
     except Exception:
-        total_registered = 0
+        prev_registered = 0
+
+    # Gender distribution among year registrations
+    gender_counts = {}
+    try:
+        regs = YearModel.objects.select_related('student').all()
+        for r in regs:
+            g = (r.student.gender or "Not Specified") if r.student else "Not Specified"
+            gender_counts[g] = gender_counts.get(g, 0) + 1
+    except Exception:
+        gender_counts = {}
+
+    # Category-wise and division-wise counts for charts
+    category_counts = {}
+    division_counts = {}
+    try:
+        for r in regs:
+            if r.student:
+                cat = r.student.category_name or "Unknown"
+                div = r.student.division or "Not Selected"
+                category_counts[cat] = category_counts.get(cat, 0) + 1
+                division_counts[div] = division_counts.get(div, 0) + 1
+    except Exception:
+        category_counts = {}
+        division_counts = {}
+
+    # Class distribution
+    class_counts = {}
+    total_schools = set()
+    registration_status = {"Registered": 0, "Not Registered": 0}
+    try:
+        for r in regs:
+            if r.student:
+                cls = r.student.student_class or "Unknown"
+                class_counts[cls] = class_counts.get(cls, 0) + 1
+                total_schools.add(r.school_name) if r.school_name else None
+                registration_status["Registered"] += 1
+    except Exception:
+        class_counts = {}
+    
+    # Not registered count
+    registration_status["Not Registered"] = max(0, total_students - registration_status["Registered"])
+    total_schools_count = len(total_schools)
 
     context = {
         "total_users": total_users,
         "total_students": total_students,
         "total_registered": total_registered,
+        "prev_registered": prev_registered,
+        "total_schools": total_schools_count,
+        "gender_count": len(gender_counts),
+        "category_count": len(category_counts),
+        "gender_counts": json.dumps(gender_counts),
+        "category_counts": json.dumps(category_counts),
+        "division_counts": json.dumps(division_counts),
+        "class_counts": json.dumps(class_counts),
+        "registration_status": json.dumps(registration_status),
     }
     return render(request, "admin/dashboard.html", context)
 
@@ -460,3 +519,56 @@ def admin_search_view(request):
         "results": results,
     }
     return render(request, "admin/search.html", context)
+
+
+@login_required
+def admin_export_view(request):
+    """Export yearwise registration data as CSV filtered by year/division/district/upazila."""
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("Admin area")
+
+    year = request.GET.get('year')
+    division = request.GET.get('division')
+    district = request.GET.get('district')
+    upazila = request.GET.get('upazila')
+
+    try:
+        year_int = int(year) if year else active_year()
+    except Exception:
+        year_int = active_year()
+
+    YearModel = get_year_model(year_int)
+    qs = YearModel.objects.select_related('student', 'student__user').all()
+
+    if division:
+        qs = qs.filter(student__division=division)
+    if district:
+        qs = qs.filter(student__district=district)
+    if upazila:
+        qs = qs.filter(student__upazila=upazila)
+
+    # Prepare CSV
+    filename = f"registrations_{year_int}.csv"
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    writer = csv.writer(response)
+    writer.writerow(['username', 'full_name', 'email', 'phone', 'school_name', 'division', 'district', 'upazila', 'student_class', 'category'])
+    for r in qs:
+        usern = r.username
+        stud = r.student
+        email = r.email or (stud.user.email if stud and stud.user else '')
+        writer.writerow([
+            usern,
+            stud.full_name if stud else '',
+            email,
+            stud.phone if stud else '',
+            r.school_name or '',
+            stud.division if stud else '',
+            stud.district if stud else '',
+            stud.upazila if stud else '',
+            stud.student_class if stud else '',
+            stud.category_name if stud else '',
+        ])
+
+    return response
