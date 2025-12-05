@@ -382,6 +382,30 @@ def admin_view(request):
 
     # Gender distribution among year registrations
     gender_counts = {}
+    old_students = 0
+    new_students = 0
+
+    current_year_prefix = str(year0)[-2:]   # ex: "25"
+
+    if YearModel:
+        regs = YearModel.objects.select_related("student").all()
+        for r in regs:
+            if r.student and r.student.user_id:
+                if str(r.student.user_id).startswith(current_year_prefix):
+                    new_students += 1
+                else:
+                    old_students += 1
+
+    # Percentages
+    try:
+        total_current = old_students + new_students
+        old_percent = (old_students / total_current) * 100
+        new_percent = (new_students / total_current) * 100
+    except:
+        old_percent = 0
+        new_percent = 0
+
+
     try:
         regs = YearModel.objects.select_related('student').all()
         for r in regs:
@@ -435,6 +459,10 @@ def admin_view(request):
         "division_counts": json.dumps(division_counts),
         "class_counts": json.dumps(class_counts),
         "registration_status": json.dumps(registration_status),
+        "old_students": old_students,
+        "new_students": new_students,
+        "old_percent": f"{old_percent:.1f}",
+        "new_percent": f"{new_percent:.1f}",
     }
     return render(request, "admin/dashboard.html", context)
 
