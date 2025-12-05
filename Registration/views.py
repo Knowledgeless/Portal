@@ -364,7 +364,8 @@ def profile_view(request):
 def admin_view(request):
     # Only staff/superuser can access
     if not (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseForbidden("Admin area")
+        messages.error(request, "No Permission to Access Admin Area.")
+        return redirect("app:profile")
     # Stats-only view (modern UI applied in template)
     total_users = User.objects.count()
     total_students = Student.objects.count()
@@ -390,11 +391,10 @@ def admin_view(request):
     if YearModel:
         regs = YearModel.objects.select_related("student").all()
         for r in regs:
-            if r.student and r.student.user_id:
-                if str(r.student.user_id).startswith(current_year_prefix):
-                    new_students += 1
-                else:
-                    old_students += 1
+            if str(r.username).startswith(current_year_prefix):
+                new_students += 1
+            else:
+                old_students += 1
 
     # Percentages
     try:

@@ -7,6 +7,7 @@ class StudentAdmin(admin.ModelAdmin):
     list_display = (
         "full_name",
         "user",
+        "school_name",
         "get_category",  # method returning category_name
         "student_class",
         "category_name",
