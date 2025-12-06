@@ -1,97 +1,46 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Admin - Search Users{% endblock %}
+{% block links %}
+  <link rel="stylesheet" href="{% static 'css/search.css' %}">
+{% endblock links %}
 
 {% block content %}
-
-<style>
-/* ---------- GLASS EFFECT SEARCH BOX ---------- */
-.glass-box {
-    backdrop-filter: blur(12px);
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 18px;
-    padding: 20px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-/* Search input */
-.glass-input {
-    backdrop-filter: blur(10px);
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.35);
-    color: #fff;
-    border-radius: 12px;
-}
-
-/* Button */
-.glass-btn {
-    backdrop-filter: blur(8px);
-    background: rgba(255,255,255,0.25);
-    border: 1px solid rgba(255,255,255,0.35);
-    color: white;
-    border-radius: 12px;
-    padding: 8px 18px;
-}
-.glass-btn:hover {
-    background: rgba(255,255,255,0.35);
-}
-
-/* ---------- GLASS RESULT LIST ---------- */
-.glass-item {
-    backdrop-filter: blur(12px);
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 14px;
-    margin-bottom: 8px;
-    padding: 18px;
-    color: white;
-}
-
-/* ---------- ICON STYLING (SOFT, NO BUTTON BOX) ---------- */
-.icon-btn {
-    color: #e3e3e3;
-    font-size: 20px;
-    padding: 6px;
-    transition: 0.2s ease;
-}
-.icon-btn:hover {
-    color: #ffffff;
-    transform: scale(1.12);
-}
-
-/* Remove Bootstrap button box */
-.no-btn {
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-</style>
-
-<div class="container py-4">
+<div class="py-0">
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="text-white">User Search</h3>
-    <div class="text-light">Signed in as <strong>{{ request.user.username }}</strong></div>
+    <h4 class="text-white fw-semibold fs-2">Search User</h4>
+    <div class="text-white fs-6">Hello, <strong style="color: #00ffee;text-transform:uppercase;">{{ request.user.username }}</strong></div>
   </div>
 
   <!-- Glass Search Box -->
-  <div class="glass-box mb-4">
-    <form method="get" class="d-flex gap-2">
-      <input type="search" name="q" 
-             class="form-control glass-input text-white"
-             placeholder="Search username, email or phone..."
-             value="{{ q }}">
-      <button class="glass-btn">Search</button>
+  <div class="glass-box mb-4 position-relative">
+    <form method="get">
+      
+      <!-- Search Input with icon -->
+      <div class="position-relative">
+        <input type="search" name="q"
+              class="form-control glass-input text-white ps-3 pe-5"
+              placeholder="Search username, email or phone..."
+              value="{{ q }}">
+
+        <!-- Icon inside field -->
+        <button class="search-icon-btn" type="submit">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+
     </form>
   </div>
+
 
   <!-- Search Results -->
   {% if results %}
     {% for s in results %}
       <div class="glass-item d-flex justify-content-between align-items-center">
         <div>
-          <div class="fw-semibold text-white">{{ s.user.username }} — {{ s.full_name }}</div>
-          <div class="small text-light">{{ s.user.email }} • {{ s.phone }}</div>
+          <div class="fw-semibold text-white fs-6">{{ s.user.username }} — {{ s.full_name }}</div>
+          <div class="mt-1"> <i class="small fa-solid fa-envelope"></i> &ensp; {{ s.user.email }} &emsp;| &emsp; <i class="small fa-solid fa-phone"></i>  &ensp;{{ s.phone }} &emsp;| &emsp; <i class="small fa-solid fa-graduation-cap"></i> &ensp; {{s.school_name}}</div>
         </div>
 
         <div class="d-flex gap-3">
@@ -99,13 +48,13 @@
           <!-- Soft icon (edit) -->
           <a href="{% url 'app:admin_profile' s.user.username %}" 
              class="no-btn">
-            <i class="fa-solid fa-eye icon-btn"></i>
+            <i class="fa-solid fa-eye icon-btn1"></i>
           </a>
 
           <!-- Soft icon (password change) -->
           <a href="{% url 'app:admin_profile' s.user.username %}?change_password=1" 
              class="no-btn">
-            <i class="fa-solid fa-key icon-btn"></i>
+            <i class="fa-solid fa-key icon-btn2"></i>
           </a>
 
         </div>

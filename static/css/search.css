@@ -1,0 +1,96 @@
+/* ---------- GLASS EFFECT SEARCH BOX ---------- */
+.glass-box {
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Search input */
+.glass-input {
+    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff !important;
+}
+
+.glass-input:focus{
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-color: rgba(255,255,255,0.6) !important;
+}
+/* Button */
+/* Search Icon inside Input */
+.search-icon-btn {
+  position: absolute;
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: rgb(255, 255, 255);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.search-icon-btn:hover {
+  color: #fff;
+}
+
+/* Glass input */
+.glass-input {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  color: white;
+  height: 48px;
+  border-radius: 12px;
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+
+/* ---------- GLASS RESULT LIST ---------- */
+.glass-item {
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 14px;
+    margin-bottom: 8px;
+    padding: 18px;
+    color: white;
+}
+
+/* ---------- ICON STYLING (SOFT, NO BUTTON BOX) ---------- */
+.icon-btn1 {
+    color: #19baff;
+    font-size: 20px;
+    padding: 3px 0;
+    transition: 0.2s ease;
+}
+.icon-btn2 {
+    color: #ffaa00;
+    font-size: 20px;
+    padding: 3px 12px 0 0;
+    transition: 0.2s ease;
+}
+.icon-btn1:hover {
+    color: #00ffd9;
+    transform: scale(1.12);
+}
+.icon-btn2:hover {
+    color: #ff9500;
+    transform: scale(1.12);
+}
+
+/* Remove Bootstrap button box */
+.no-btn {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
