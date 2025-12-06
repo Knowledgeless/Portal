@@ -42,7 +42,12 @@
                 {% if request.user.is_staff or request.user.is_superuser %}
                     <a href="{% url 'app:admin_view' %}" class="menu-item {% if request.resolver_match.url_name == 'admin_view' %}active{% endif %}">
                         <i class="fa-solid fa-toolbox"></i>
-                        <span>Admin</span>
+                        <span>Dashboard</span>
+                    </a>
+
+                    <a href="{% url 'app:search' %}" class="menu-item {% if request.resolver_match.url_name == 'search' %}active{% endif %}">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>Search</span>
                     </a>
                     
                 {% endif %}

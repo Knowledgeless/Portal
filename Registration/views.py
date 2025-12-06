@@ -386,7 +386,7 @@ def admin_view(request):
     old_students = 0
     new_students = 0
 
-    current_year_prefix = str(year0)[-2:]   # ex: "25"
+    current_year_prefix = str(year0)[-2:] # e.g., '25' for 2025
 
     if YearModel:
         regs = YearModel.objects.select_related("student").all()
@@ -600,3 +600,24 @@ def admin_export_view(request):
         ])
 
     return response
+
+
+@login_required
+def search_view(request):
+    if not request.user.is_staff or request.user.is_superuser:
+        messages.error(request, "No Permission to Access Search.")
+        return redirect("app:profile")
+    query = request.GET.get('q', '').strip()
+    results = []
+    if query:
+        results = Student.objects.select_related('user').filter(
+            Q(user__username__icontains=query) |
+            Q(full_name__icontains=query) |
+            Q(phone__icontains=query)
+        ).order_by('user__username')[:100]
+
+    context = {
+        'query': query,
+        'results': results,
+    }
+    return render(request, 'search.html', context)
