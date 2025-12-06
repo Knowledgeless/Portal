@@ -1,42 +1,120 @@
 {% extends "base.html" %}
 {% block title %}Admin - Search Users{% endblock %}
+
 {% block content %}
+
+<style>
+/* ---------- GLASS EFFECT SEARCH BOX ---------- */
+.glass-box {
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Search input */
+.glass-input {
+    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+    border-radius: 12px;
+}
+
+/* Button */
+.glass-btn {
+    backdrop-filter: blur(8px);
+    background: rgba(255,255,255,0.25);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: white;
+    border-radius: 12px;
+    padding: 8px 18px;
+}
+.glass-btn:hover {
+    background: rgba(255,255,255,0.35);
+}
+
+/* ---------- GLASS RESULT LIST ---------- */
+.glass-item {
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 14px;
+    margin-bottom: 8px;
+    padding: 18px;
+    color: white;
+}
+
+/* ---------- ICON STYLING (SOFT, NO BUTTON BOX) ---------- */
+.icon-btn {
+    color: #e3e3e3;
+    font-size: 20px;
+    padding: 6px;
+    transition: 0.2s ease;
+}
+.icon-btn:hover {
+    color: #ffffff;
+    transform: scale(1.12);
+}
+
+/* Remove Bootstrap button box */
+.no-btn {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+</style>
+
 <div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3>User Search</h3>
-    <div>Signed in as <strong>{{ request.user.username }}</strong></div>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="text-white">User Search</h3>
+    <div class="text-light">Signed in as <strong>{{ request.user.username }}</strong></div>
   </div>
 
-  <div class="card mb-4">
-    <div class="card-body">
-      <form method="get" class="d-flex gap-2">
-        <input type="search" name="q" class="form-control" placeholder="Search username, email or phone" value="{{ q }}">
-        <button class="btn btn-primary">Search</button>
-      </form>
-    </div>
+  <!-- Glass Search Box -->
+  <div class="glass-box mb-4">
+    <form method="get" class="d-flex gap-2">
+      <input type="search" name="q" 
+             class="form-control glass-input text-white"
+             placeholder="Search username, email or phone..."
+             value="{{ q }}">
+      <button class="glass-btn">Search</button>
+    </form>
   </div>
 
+  <!-- Search Results -->
   {% if results %}
-    <div class="list-group">
-      {% for s in results %}
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-          <div>
-            <div class="fw-semibold">{{ s.user.username }} — {{ s.full_name }}</div>
-            <div class="small text-muted">{{ s.user.email }} • {{ s.phone }}</div>
-          </div>
-          <div class="d-flex gap-2">
-              <a href="{% url 'app:admin_profile' s.user.username %}" class="btn btn-sm btn-outline-success" title="View / Edit">
-                <i class="fa-solid fa-eye"></i>
-              </a>
-              <a href="{% url 'app:admin_profile' s.user.username %}?change_password=1" class="btn btn-sm btn-outline-danger" title="Change Password">
-                <i class="fa-solid fa-key"></i>
-              </a>
-            </div>
+    {% for s in results %}
+      <div class="glass-item d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-semibold text-white">{{ s.user.username }} — {{ s.full_name }}</div>
+          <div class="small text-light">{{ s.user.email }} • {{ s.phone }}</div>
         </div>
-      {% endfor %}
-    </div>
+
+        <div class="d-flex gap-3">
+
+          <!-- Soft icon (edit) -->
+          <a href="{% url 'app:admin_profile' s.user.username %}" 
+             class="no-btn">
+            <i class="fa-solid fa-eye icon-btn"></i>
+          </a>
+
+          <!-- Soft icon (password change) -->
+          <a href="{% url 'app:admin_profile' s.user.username %}?change_password=1" 
+             class="no-btn">
+            <i class="fa-solid fa-key icon-btn"></i>
+          </a>
+
+        </div>
+      </div>
+    {% endfor %}
   {% elif q %}
-    <div class="alert alert-secondary">No results for "{{ q }}"</div>
+    <div class="glass-item text-white">No results for "{{ q }}"</div>
   {% endif %}
+
 </div>
+
 {% endblock %}

@@ -604,20 +604,29 @@ def admin_export_view(request):
 
 @login_required
 def search_view(request):
-    if not request.user.is_staff or request.user.is_superuser:
+    # Only staff/superuser can access
+    if not (request.user.is_staff or request.user.is_superuser):
         messages.error(request, "No Permission to Access Search.")
         return redirect("app:profile")
-    query = request.GET.get('q', '').strip()
+
+    q = request.GET.get('q', '').strip()
     results = []
-    if query:
-        results = Student.objects.select_related('user').filter(
-            Q(user__username__icontains=query) |
-            Q(full_name__icontains=query) |
-            Q(phone__icontains=query)
-        ).order_by('user__username')[:100]
+
+    if q:
+        # search by username, email, full name, phone
+        results = (
+            Student.objects.select_related('user')
+            .filter(
+                Q(user__username__icontains=q) |
+                Q(user__email__icontains=q) |
+                Q(full_name__icontains=q) |
+                Q(phone__icontains=q)
+            )
+            .order_by('user__username')[:200]
+        )
 
     context = {
-        'query': query,
+        'q': q,            # keep template variable name 'q' (matches your template)
         'results': results,
     }
-    return render(request, 'search.html', context)
+    return render(request, 'admin/search.html', context)
