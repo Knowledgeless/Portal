@@ -488,22 +488,70 @@ def admin_profile_view(request, username):
 
         form = ExistingUserUpdateForm(request.POST, instance=student)
         if form.is_valid():
-            with transaction.atomic():
-                # update user email
-                user.email = form.cleaned_data.get("email", user.email)
-                user.save()
-                # update student
-                student = form.save(commit=False)
-                # update category mapping similar to profile_view
-                class_mapping = {
-                    "3": "Primary", "4": "Primary", "5": "Primary",
-                    "6": "Junior", "7": "Junior", "8": "Junior",
-                    "9": "Secondary", "10": "Secondary",
-                    "11": "Higher Secondary", "12": "Higher Secondary",
-                }
-                student.category_name = class_mapping.get(form.cleaned_data.get("student_class"), student.category_name)
-                student.save()
-            messages.success(request, f"Updated user {user.username}")
+            try:
+                with transaction.atomic():
+                    # ---- 1. update user email ----
+                    user.email = form.cleaned_data.get("email", user.email)
+                    user.save()
+
+                    # ---- 2. update student ----
+                    student = form.save(commit=False)
+
+                    # update category mapping similar to profile_view
+                    class_mapping = {
+                        "3": "Primary", "4": "Primary", "5": "Primary",
+                        "6": "Junior", "7": "Junior", "8": "Junior",
+                        "9": "Secondary", "10": "Secondary",
+                        "11": "Higher Secondary", "12": "Higher Secondary",
+                    }
+                    student.category_name = class_mapping.get(form.cleaned_data.get("student_class"), student.category_name)
+                    student.save()
+
+                    # ---- 3. Update active year and previous year YearModel entries, if present ----
+                    try:
+                        year0 = active_year()
+                    except Exception:
+                        year0 = None
+
+                    # helper to update a YearModel safely
+                    def update_year_model_for(year):
+                        if not year:
+                            return
+                        try:
+                            YM = get_year_model(year)
+                            if not YM:
+                                return
+                            # Update existing registration(s) that match this username
+                            objs = YM.objects.filter(username=user.username)
+                            for obj in objs:
+                                obj.email = user.email
+                                obj.school_name = student.school_name
+                                # ensure FK to student if model has such field
+                                if hasattr(obj, "student_id") or hasattr(obj, "student"):
+                                    try:
+                                        obj.student = student
+                                    except Exception:
+                                        pass
+                                obj.save()
+                        except Exception:
+                            # swallow to allow main transaction to continue but log if needed
+                            pass
+
+                    # update current active year
+                    if year0 is not None:
+                        update_year_model_for(year0)
+                    # update previous year
+                    try:
+                        if year0 is not None:
+                            update_year_model_for(year0 - 1)
+                    except Exception:
+                        pass
+
+                messages.success(request, f"Updated user {user.username}")
+            except Exception as e:
+                messages.error(request, f"Failed to update user: {e}")
+                return redirect("app:admin_profile", username=user.username)
+
             return redirect("app:admin_profile", username=user.username)
         else:
             messages.error(request, "Form validation failed.")
@@ -511,7 +559,7 @@ def admin_profile_view(request, username):
         form = ExistingUserUpdateForm(instance=student)
         form.fields["email"].initial = user.email
 
-    # populate choices
+    # populate choices (kept same as before so address.js remains compatible)
     form.fields['division'].choices = [("", "-- Select Division --")] + [(d, d) for d in DIVISION_LIST]
     if student.division in GEOGRAPHY_DATA:
         districts = list(GEOGRAPHY_DATA[student.division].keys())
@@ -524,8 +572,10 @@ def admin_profile_view(request, username):
         "target_user": user,
         "profile_info": student,
         "form": form,
+        
     }
     return render(request, "admin/profile.html", context)
+
 
 
 @login_required

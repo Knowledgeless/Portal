@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Admin - {{ target_user.username }}{% endblock %}
+{% comment %} {% block title %}Admin - {{ target_user.username }}{% endblock %}
 {% block content %}
 <div class="container py-0">
   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -38,6 +38,122 @@
           {% csrf_token %}
           {{ form.as_p }}
           <button class="btn btn-primary">Save changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% endcomment %}
+
+{% comment %} {% extends "base.html" %} {% endcomment %}
+{% block title %}Admin - {{ target_user.username }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Glass effect card */
+.glass-card {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  border-radius: 12px;
+}
+
+/* Inputs (make sure they play nicely with form-control) */
+.glass-input {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: #fff;
+  border-radius: 8px;
+  padding: .45rem .6rem;
+}
+.form-label { color: #e9eef8; font-weight:600; }
+
+/* small helpers */
+.muted { color: rgba(255,255,255,0.65); }
+.card-padded { padding: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-0">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">User: <span class="muted">{{ target_user.username }}</span></h3>
+    <div>
+      <a href="{% url 'app:admin_view' %}" class="btn btn-outline-light btn-sm">Back to Admin</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="glass-card card-padded mb-3">
+        <div class="fw-semibold form-label">Full name</div>
+        <div class="muted">{{ profile_info.full_name }}</div>
+        <hr class="bg-light">
+        <div class="fw-semibold form-label">Email</div>
+        <div class="muted">{{ target_user.email }}</div>
+        <hr class="bg-light">
+        <div class="fw-semibold form-label">Phone</div>
+        <div class="muted">{{ profile_info.phone }}</div>
+      </div>
+
+      <div class="glass-card card-padded">
+        <form method="post" class="d-flex gap-2">
+          {% csrf_token %}
+          <input name="new_password" class="form-control form-control-sm glass-input" placeholder="New password" autocomplete="new-password">
+          <button class="btn btn-sm btn-danger">Change</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+      <div class="glass-card card-padded">
+        <h5 class="mb-3">Edit user information</h5>
+
+        <!-- We render the django form fields manually so we can add glass-input class and mark labels -->
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% for field in form.visible_fields %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">
+                {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
+              </label>
+
+              {# Preserve existing widget rendering but add glass-input class and keep IDs for address.js #}
+              {% if field.name in "division,district,upazila" %}
+                {{ field }}
+                {# these fields will already have id="id_division" etc. address.js will work. #}
+              {% else %}
+                {% if field.field.widget.attrs.class %}
+                  {% with classes=field.field.widget.attrs.class|stringformat:"s" %}
+                    {% if student.username|slice:":2" == year_prefix %}
+                        New Student
+                    {% else %}
+                        Old Student
+                    {% endif %}
+                  {% endwith %}
+                {% else %}
+                  {% comment %} {% set _=field.field.widget.attrs.update({"class":"form-control glass-input"}) %} {% endcomment %}
+                {% endif %}
+                {{ field }}
+              {% endif %}
+
+              {% if field.help_text %}
+                <div class="form-text muted small">{{ field.help_text }}</div>
+              {% endif %}
+
+              {% for error in field.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary">Save changes</button>
+            <a href="{% url 'app:admin_view' %}" class="btn btn-outline-light">Cancel</a>
+          </div>
         </form>
       </div>
     </div>
