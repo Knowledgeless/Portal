@@ -1,5 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Admin Dashboard{% endblock %}
+{% block links %} 
+  <link rel="stylesheet" href= "{% static 'css/admin_dashboard.css' %} ">
+{% endblock links %}
+
+
 {% block content %}
 <div class="container-fluid py-0">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -146,77 +152,78 @@
   </div>
 
   <!-- Export Section -->
-  <hr class="my-4">
-  <div class="card p-4 mt-4">
-    <h5 class="mb-3">Export Data</h5>
-    <form method="get" action="{% url 'app:admin_export' %}" class="row g-3 align-items-end">
-      <div class="col-md-2">
-        <label class="form-label small fw-bold">Year</label>
-        <input name="year" class="form-control" placeholder="2025">
-      </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-bold">Division</label>
-        <input name="division" class="form-control">
-      </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-bold">District</label>
-        <input name="district" class="form-control">
-      </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-bold">Upazila</label>
-        <input name="upazila" class="form-control">
-      </div>
-      <div class="col-md-4">
-        <button type="submit" class="btn btn-primary w-100">Download CSV</button>
-      </div>
-    </form>
-  </div>
+<hr class="my-4">
+
+<div class="glass-export-card mt-4">
+  <h5 class="mb-3 text-white">Export Data</h5>
+
+  <form method="get" action="{% url 'app:admin_export' %}" class="row g-3">
+
+    <!-- Year -->
+    <div class="col-md-3">
+      <label class="form-label small fw-bold text-white">Year</label>
+      <select name="year" class="form-select glass-input">
+        {% for y in years %}
+          <option value="{{ y }}">{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Division -->
+    <div class="col-md-3">
+      <label class="form-label small fw-bold text-white">Division</label>
+      <select name="division" class="form-select glass-input">
+        <option value="">All</option>
+        {% for d in divisions %}
+          <option value="{{ d }}">{{ d }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- District -->
+    <div class="col-md-3">
+      <label class="form-label small fw-bold text-white">District</label>
+      <select name="district" class="form-select glass-input">
+        <option value="">All</option>
+        {% for d in districts %}
+          <option value="{{ d }}">{{ d }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Upazila -->
+    <div class="col-md-3">
+      <label class="form-label small fw-bold text-white">Upazila</label>
+      <select name="upazila" class="form-select glass-input">
+        <option value="">All</option>
+        {% for u in upazilas %}
+          <option value="{{ u }}">{{ u }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Format -->
+    <div class="col-md-6">
+      <label class="form-label small fw-bold text-white">File Format</label>
+      <select name="format" class="form-select glass-input">
+        <option value="csv">CSV</option>
+        <option value="xlsx">Excel</option>
+      </select>
+    </div>
+
+    <!-- Download -->
+    <div class="col-md-6 d-flex align-items-end">
+      <button class="btn btn-primary w-100 fw-bold">
+        Download Data
+      </button>
+    </div>
+
+  </form>
 </div>
 
-<style>
-  .kpi-card {
-    padding: 1.5rem;
-    border-radius: 12px;
-    color: white;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    backdrop-filter: blur(10px);
-    transition: transform 200ms, box-shadow 200ms;
-  }
-  
-  .kpi-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.2);
-  }
-  
-  .kpi-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.9;
-    margin-bottom: 0.5rem;
-  }
-  
-  .kpi-value {
-    font-size: 2rem;
-    font-weight: 700;
-  }
-  
-  .chart-card {
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 1.5rem;
-    height: 100%;
-  }
-  
-  .chart-title {
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #fff;
-  }
-</style>
+</div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>

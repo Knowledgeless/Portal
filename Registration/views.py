@@ -237,6 +237,7 @@ def logout_view(request):
     messages.info(request, "Login First")
     return redirect("app:login")
     return redirect("app:login")
+
 @never_cache
 def profile_view(request):
     # Ensure user is authenticated before accessing profile data
@@ -567,56 +568,73 @@ def admin_profile_view(request, username):
     if student.division in GEOGRAPHY_DATA and student.district in GEOGRAPHY_DATA[student.division]:
         upazilas = GEOGRAPHY_DATA[student.division][student.district]
         form.fields['upazila'].choices = [("", "-- Select Upazila --")] + [(u, u) for u in upazilas]
+    students = Student.objects.all()
 
+    context = {
+        "years": sorted({active_year(), active_year() - 1, active_year() - 2}, reverse=True),
+        "divisions": students.exclude(division="Not Selected")
+                             .values_list("division", flat=True)
+                             .distinct(),
+        "districts": students.exclude(district="Not Selected")
+                             .values_list("district", flat=True)
+                             .distinct(),
+        "upazilas": students.exclude(upazila="Not Selected")
+                            .values_list("upazila", flat=True)
+                            .distinct(),
+    }
     context = {
         "target_user": user,
         "profile_info": student,
         "form": form,
+        "years": sorted({active_year(), active_year() - 1, active_year() - 2}, reverse=True),
+        "divisions": students.exclude(division="Not Selected")
+                             .values_list("division", flat=True)
+                             .distinct(),
+        "districts": students.exclude(district="Not Selected")
+                             .values_list("district", flat=True)
+                             .distinct(),
+        "upazilas": students.exclude(upazila="Not Selected")
+                            .values_list("upazila", flat=True)
+                            .distinct(),
         
     }
     return render(request, "admin/profile.html", context)
 
 
 
-@login_required
-def admin_search_view(request):
-    if not (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseForbidden("Admin area")
+# @login_required
+# def admin_search_view(request):
+#     if not (request.user.is_staff or request.user.is_superuser):
+#         return HttpResponseForbidden("Admin area")
 
-    q = request.GET.get("q", "").strip()
-    results = []
-    if q:
-        results = Student.objects.select_related('user').filter(
-            Q(user__username__icontains=q) |
-            Q(user__email__icontains=q) |
-            Q(phone__icontains=q)
-        ).order_by('user__username')[:200]
+#     q = request.GET.get("q", "").strip()
+#     results = []
+#     if q:
+#         results = Student.objects.select_related('user').filter(
+#             Q(user__username__icontains=q) |
+#             Q(user__email__icontains=q) |
+#             Q(phone__icontains=q)
+#         ).order_by('user__username')[:200]
 
-    context = {
-        "q": q,
-        "results": results,
-    }
-    return render(request, "admin/search.html", context)
-
+#     context = {
+#         "q": q,
+#         "results": results,
+#     }
+#     return render(request, "admin/search.html", context)
 
 @login_required
 def admin_export_view(request):
-    """Export yearwise registration data as CSV filtered by year/division/district/upazila."""
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponseForbidden("Admin area")
 
-    year = request.GET.get('year')
-    division = request.GET.get('division')
-    district = request.GET.get('district')
-    upazila = request.GET.get('upazila')
+    year = int(request.GET.get("year", active_year()))
+    division = request.GET.get("division")
+    district = request.GET.get("district")
+    upazila = request.GET.get("upazila")
+    file_format = request.GET.get("format", "csv")
 
-    try:
-        year_int = int(year) if year else active_year()
-    except Exception:
-        year_int = active_year()
-
-    YearModel = get_year_model(year_int)
-    qs = YearModel.objects.select_related('student', 'student__user').all()
+    YearModel = get_year_model(year)
+    qs = YearModel.objects.select_related("student", "student__user")
 
     if division:
         qs = qs.filter(student__division=division)
@@ -625,30 +643,60 @@ def admin_export_view(request):
     if upazila:
         qs = qs.filter(student__upazila=upazila)
 
-    # Prepare CSV
-    filename = f"registrations_{year_int}.csv"
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    headers = [
+        "Username", "Full Name", "Email", "Phone",
+        "School", "Division", "District", "Upazila",
+        "Class", "Category"
+    ]
 
-    writer = csv.writer(response)
-    writer.writerow(['username', 'full_name', 'email', 'phone', 'school_name', 'division', 'district', 'upazila', 'student_class', 'category'])
+    # -------- CSV --------
+    if file_format == "csv":
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = f'attachment; filename="registrations_{year}.csv"'
+        writer = csv.writer(response)
+        writer.writerow(headers)
+
+        for r in qs:
+            s = r.student
+            writer.writerow([
+                r.username,
+                s.full_name if s else "",
+                r.email,
+                s.phone if s else "",
+                r.school_name,
+                s.division if s else "",
+                s.district if s else "",
+                s.upazila if s else "",
+                s.student_class if s else "",
+                s.category_name if s else "",
+            ])
+        return response
+
+    # -------- EXCEL --------
+    wb = Workbook()
+    ws = wb.active
+    ws.append(headers)
+
     for r in qs:
-        usern = r.username
-        stud = r.student
-        email = r.email or (stud.user.email if stud and stud.user else '')
-        writer.writerow([
-            usern,
-            stud.full_name if stud else '',
-            email,
-            stud.phone if stud else '',
-            r.school_name or '',
-            stud.division if stud else '',
-            stud.district if stud else '',
-            stud.upazila if stud else '',
-            stud.student_class if stud else '',
-            stud.category_name if stud else '',
+        s = r.student
+        ws.append([
+            r.username,
+            s.full_name if s else "",
+            r.email,
+            s.phone if s else "",
+            r.school_name,
+            s.division if s else "",
+            s.district if s else "",
+            s.upazila if s else "",
+            s.student_class if s else "",
+            s.category_name if s else "",
         ])
 
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = f'attachment; filename="registrations_{year}.xlsx"'
+    wb.save(response)
     return response
 
 
@@ -669,8 +717,8 @@ def search_view(request):
             .filter(
                 Q(user__username__icontains=q) |
                 Q(user__email__icontains=q) |
-                Q(full_name__icontains=q) |
-                Q(phone__icontains=q)
+                Q(full_name__icontains=q) 
+                | Q(phone__icontains=q)
             )
             .order_by('user__username')[:200]
         )

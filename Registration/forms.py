@@ -60,7 +60,7 @@ class NewUserRegistrationForm(forms.Form):
         widget=forms.Select(attrs={"class": "form-select", "required": True})
     )
     gender = forms.ChoiceField(
-        choices=[("", "--- Select Gender ---"), ("Male", "Male"), ("Female", "Female"), ("Other", "Other")],
+        choices=[("", "--- Select Gender ---"), ("Male", "Male"), ("Female", "Female")],
         widget=forms.Select(attrs={"class": "form-select", "required": True})
     )
     dob = forms.DateField(

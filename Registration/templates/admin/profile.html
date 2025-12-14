@@ -127,16 +127,6 @@
                 {# these fields will already have id="id_division" etc. address.js will work. #}
               {% else %}
                 {% if field.field.widget.attrs.class %}
-                  {% with classes=field.field.widget.attrs.class|stringformat:"s" %}
-                    {% if student.username|slice:":2" == year_prefix %}
-                        New Student
-                    {% else %}
-                        Old Student
-                    {% endif %}
-                  {% endwith %}
-                {% else %}
-                  {% comment %} {% set _=field.field.widget.attrs.update({"class":"form-control glass-input"}) %} {% endcomment %}
-                {% endif %}
                 {{ field }}
               {% endif %}
 
@@ -148,6 +138,7 @@
                 <div class="text-danger small mt-1">{{ error }}</div>
               {% endfor %}
             </div>
+            {% endif %}
           {% endfor %}
 
           <div class="d-flex gap-2">
